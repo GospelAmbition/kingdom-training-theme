@@ -141,3 +141,5 @@ After making changes to the React/Next.js code:
 - The frontend uses static export, so all pages are pre-rendered at build time
 - API calls are made client-side after the page loads
 
+
+
