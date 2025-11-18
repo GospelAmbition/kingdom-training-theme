@@ -4,7 +4,7 @@ import PageHeader from '@/components/PageHeader';
 import ContentCard from '@/components/ContentCard';
 import ProgressIndicator from '@/components/ProgressIndicator';
 import { ChevronRight } from 'lucide-react';
-import { getStrategyCourses, WordPressPost } from '@/lib/wordpress';
+import { getStrategyCourses, getOrderedCourseSteps, WordPressPost } from '@/lib/wordpress';
 
 export interface CourseStep {
   number: number;
@@ -12,49 +12,43 @@ export interface CourseStep {
   slug: string;
 }
 
-export const courseSteps: CourseStep[] = [
-  { number: 1, title: 'DMM Training Options', slug: 'dmm-training-options' },
-  { number: 2, title: 'Create a Vision Statement for Your M2DMM', slug: 'create-a-vision-statement-for-your-m2dmm' },
-  { number: 3, title: 'M2DMM Roles', slug: 'm2dmm-roles' },
-  { number: 4, title: 'Create a Prayer Strategy', slug: 'create-a-prayer-strategy' },
-  { number: 5, title: 'Create a Persona', slug: 'create-a-persona' },
-  { number: 6, title: 'Identify Your Media Platform', slug: 'identify-your-media-platform' },
-  { number: 7, title: 'Pick Your Name and Brand', slug: 'pick-your-name-and-brand' },
-  { number: 8, title: 'Create Content', slug: 'create-content' },
-  { number: 9, title: 'Create Ads', slug: 'create-ads' },
-  { number: 10, title: 'Evaluate Your M2DMM Strategy', slug: 'evaluate-your-m2dmm-strategy' },
-];
-
-// Get slugs of main course steps for filtering
-const mainStepSlugs = courseSteps.map(step => step.slug);
-
 export default function StrategyCoursesPage() {
+  const [courseSteps, setCourseSteps] = useState<WordPressPost[]>([]);
   const [additionalResources, setAdditionalResources] = useState<WordPressPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchAdditionalResources() {
+    async function fetchCourses() {
       try {
+        // Fetch ordered course steps from database
+        const orderedSteps = await getOrderedCourseSteps();
+        setCourseSteps(orderedSteps);
+        
+        // Fetch all courses to find additional resources
         const allCourses = await getStrategyCourses({ 
           per_page: 100, 
           orderby: 'date', 
           order: 'desc' 
         });
         
-        // Filter out the main 10 steps to get additional resources
+        // Get slugs of courses with steps to filter them out
+        const stepSlugs = orderedSteps.map(step => step.slug);
+        
+        // Filter out courses with steps to get additional resources
         const additional = allCourses.filter(
-          course => !mainStepSlugs.includes(course.slug)
+          course => !stepSlugs.includes(course.slug)
         );
         
         setAdditionalResources(additional);
       } catch (error) {
-        console.error('Error fetching additional resources:', error);
+        console.error('Error fetching courses:', error);
+        setCourseSteps([]);
         setAdditionalResources([]);
       } finally {
         setLoading(false);
       }
     }
-    fetchAdditionalResources();
+    fetchCourses();
   }, []);
   return (
     <>
@@ -79,61 +73,76 @@ export default function StrategyCoursesPage() {
             </div>
 
             {/* Course Steps */}
-            <div className="space-y-4">
-              {courseSteps.map((step, index) => (
-                <div key={step.number} className="relative">
-                  {/* Connecting Line */}
-                  {index < courseSteps.length - 1 && (
-                    <div className="absolute left-6 top-16 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
-                  )}
-                  
-                  {/* Step Card */}
-                  <Link
-                    to={`/strategy-courses/${step.slug}`}
-                    className="group relative flex items-start gap-6 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-lg transition-all duration-200"
-                  >
-                    {/* Step Number Circle */}
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg group-hover:bg-primary-600 transition-colors">
-                      {step.number}
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+                <p className="mt-4 text-gray-600">Loading course steps...</p>
+              </div>
+            ) : courseSteps.length > 0 ? (
+              <>
+                <div className="space-y-4">
+                  {courseSteps.map((step, index) => (
+                    <div key={step.id} className="relative">
+                      {/* Connecting Line */}
+                      {index < courseSteps.length - 1 && (
+                        <div className="absolute left-6 top-16 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
+                      )}
+                      
+                      {/* Step Card */}
+                      <Link
+                        to={`/strategy-courses/${step.slug}`}
+                        className="group relative flex items-start gap-6 p-6 bg-white border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-lg transition-all duration-200"
+                      >
+                        {/* Step Number Circle */}
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg group-hover:bg-primary-600 transition-colors">
+                          {step.steps || index + 1}
+                        </div>
+                        
+                        {/* Step Content */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary-600 transition-colors mb-1">
+                            {step.title.rendered}
+                          </h3>
+                          <div className="flex items-center text-sm text-primary-500 font-medium mt-2">
+                            <span>Start this step</span>
+                            <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                        
+                        {/* Arrow Icon */}
+                        <div className="flex-shrink-0 text-gray-400 group-hover:text-primary-500 transition-colors">
+                          <ChevronRight className="w-6 h-6" />
+                        </div>
+                      </Link>
                     </div>
-                    
-                    {/* Step Content */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary-600 transition-colors mb-1">
-                        {step.title}
-                      </h3>
-                      <div className="flex items-center text-sm text-primary-500 font-medium mt-2">
-                        <span>Start this step</span>
-                        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                    
-                    {/* Arrow Icon */}
-                    <div className="flex-shrink-0 text-gray-400 group-hover:text-primary-500 transition-colors">
-                      <ChevronRight className="w-6 h-6" />
-                    </div>
-                  </Link>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            {/* Progress Indicator */}
-            <ProgressIndicator 
-              stepSlugs={mainStepSlugs}
-              totalSteps={courseSteps.length}
-              className="mt-12"
-            />
+                {/* Progress Indicator */}
+                <ProgressIndicator 
+                  stepSlugs={courseSteps.map(step => step.slug)}
+                  totalSteps={courseSteps.length}
+                  className="mt-12"
+                />
 
-            {/* Call to Action */}
-            <div className="mt-12 text-center">
-              <Link
-                to="/strategy-courses/dmm-training-options"
-                className="inline-flex items-center justify-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors duration-200 text-lg"
-              >
-                Start Step 1: DMM Training Options
-                <ChevronRight className="w-5 h-5 ml-2" />
-              </Link>
-            </div>
+                {/* Call to Action */}
+                {courseSteps.length > 0 && (
+                  <div className="mt-12 text-center">
+                    <Link
+                      to={`/strategy-courses/${courseSteps[0].slug}`}
+                      className="inline-flex items-center justify-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors duration-200 text-lg"
+                    >
+                      Start Step {courseSteps[0].steps || 1}: {courseSteps[0].title.rendered}
+                      <ChevronRight className="w-5 h-5 ml-2" />
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-12 bg-background-50 rounded-lg">
+                <p className="text-gray-600">No course steps found. Please add strategy courses with step numbers in WordPress admin.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

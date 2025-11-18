@@ -1,26 +1,29 @@
 import { useEffect, useState } from 'react';
 import Hero from '@/components/Hero';
 import ContentCard from '@/components/ContentCard';
-import { getArticles, getStrategyCourses, getTools, WordPressPost } from '@/lib/wordpress';
+import { getArticles, getStrategyCourses, getTools, getOrderedCourseSteps, WordPressPost } from '@/lib/wordpress';
 import { Link } from 'react-router-dom';
 
 export default function HomePage() {
   const [articles, setArticles] = useState<WordPressPost[]>([]);
   const [courses, setCourses] = useState<WordPressPost[]>([]);
   const [tools, setTools] = useState<WordPressPost[]>([]);
+  const [courseSteps, setCourseSteps] = useState<WordPressPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [articlesData, coursesData, toolsData] = await Promise.all([
+        const [articlesData, coursesData, toolsData, orderedSteps] = await Promise.all([
           getArticles({ per_page: 3, orderby: 'date', order: 'desc' }).catch(() => []),
           getStrategyCourses({ per_page: 3, orderby: 'date', order: 'desc' }).catch(() => []),
           getTools({ per_page: 3, orderby: 'date', order: 'desc' }).catch(() => []),
+          getOrderedCourseSteps().catch(() => []),
         ]);
         setArticles(articlesData);
         setCourses(coursesData);
         setTools(toolsData);
+        setCourseSteps(orderedSteps);
       } catch (error) {
         console.error('Error fetching homepage data:', error);
       } finally {
@@ -120,75 +123,42 @@ export default function HomePage() {
               Making Movements strategy for any context. Complete your plan in 6-7 hours.
             </p>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8 text-left">
-              <h3 className="text-xl font-semibold mb-4 text-accent-500">The 10-Step Curriculum:</h3>
-              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                {/* Left Column: Steps 1-5 */}
-                <div className="flex flex-col gap-4">
-                  <Link 
-                    to="/strategy-courses/dmm-training-options" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    1. DMM Training Options
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/create-a-vision-statement-for-your-m2dmm" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    2. Create a Vision Statement for Your M2DMM
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/m2dmm-roles" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    3. M2DMM Roles
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/create-a-prayer-strategy" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    4. Create a Prayer Strategy
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/create-a-persona" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    5. Create a Persona
-                  </Link>
+              <h3 className="text-xl font-semibold mb-4 text-accent-500">
+                The {courseSteps.length > 0 ? courseSteps.length : '10'}-Step Curriculum:
+              </h3>
+              {courseSteps.length > 0 ? (
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  {/* Left Column: First half of steps */}
+                  <div className="flex flex-col gap-4">
+                    {courseSteps.slice(0, Math.ceil(courseSteps.length / 2)).map((step, index) => (
+                      <Link 
+                        key={step.id}
+                        to={`/strategy-courses/${step.slug}`}
+                        className="hover:text-accent-400 transition-colors"
+                      >
+                        {step.steps || index + 1}. {step.title.rendered}
+                      </Link>
+                    ))}
+                  </div>
+                  {/* Right Column: Second half of steps */}
+                  <div className="flex flex-col gap-4">
+                    {courseSteps.slice(Math.ceil(courseSteps.length / 2)).map((step, index) => {
+                      const stepNumber = step.steps || Math.ceil(courseSteps.length / 2) + index + 1;
+                      return (
+                        <Link 
+                          key={step.id}
+                          to={`/strategy-courses/${step.slug}`}
+                          className="hover:text-accent-400 transition-colors"
+                        >
+                          {stepNumber}. {step.title.rendered}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
-                {/* Right Column: Steps 6-10 */}
-                <div className="flex flex-col gap-4">
-                  <Link 
-                    to="/strategy-courses/identify-your-media-platform" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    6. Identify Your Media Platform
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/pick-your-name-and-brand" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    7. Pick Your Name and Brand
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/create-content" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    8. Create Content
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/create-ads" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    9. Create Ads
-                  </Link>
-                  <Link 
-                    to="/strategy-courses/evaluate-your-m2dmm-strategy" 
-                    className="hover:text-accent-400 transition-colors"
-                  >
-                    10. Evaluate Your M2DMM Strategy
-                  </Link>
-                </div>
-              </div>
+              ) : (
+                <p className="text-secondary-200">Loading course steps...</p>
+              )}
             </div>
             <Link 
               to="/strategy-courses"

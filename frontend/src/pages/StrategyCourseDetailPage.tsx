@@ -1,19 +1,42 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getStrategyCourseBySlug, WordPressPost } from '@/lib/wordpress';
+import { getStrategyCourseBySlug, getOrderedCourseSteps, WordPressPost } from '@/lib/wordpress';
 import { markStepCompleted } from '@/lib/utils';
-import { courseSteps } from './StrategyCoursesPage';
 import ProgressIndicator from '@/components/ProgressIndicator';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 export default function StrategyCourseDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const [course, setCourse] = useState<WordPressPost | null>(null);
+  const [courseSteps, setCourseSteps] = useState<WordPressPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // Scroll to top when navigating to a new course page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [slug]);
+
+  // Fetch ordered course steps from database
+  useEffect(() => {
+    async function fetchCourseSteps() {
+      try {
+        const steps = await getOrderedCourseSteps();
+        setCourseSteps(steps);
+      } catch (err) {
+        console.error('Error fetching course steps:', err);
+        setCourseSteps([]);
+      }
+    }
+    fetchCourseSteps();
+  }, []);
+
   // Find current step and navigation steps
   const { currentStep, nextStep, previousStep } = useMemo(() => {
+    if (!slug || courseSteps.length === 0) {
+      return { currentStep: null, nextStep: null, previousStep: null };
+    }
+
     const currentIndex = courseSteps.findIndex(step => step.slug === slug);
     
     if (currentIndex === -1) {
@@ -25,7 +48,7 @@ export default function StrategyCourseDetailPage() {
       nextStep: currentIndex < courseSteps.length - 1 ? courseSteps[currentIndex + 1] : null,
       previousStep: currentIndex > 0 ? courseSteps[currentIndex - 1] : null,
     };
-  }, [slug]);
+  }, [slug, courseSteps]);
 
   useEffect(() => {
     async function fetchCourse() {
@@ -41,9 +64,8 @@ export default function StrategyCourseDetailPage() {
           setCourse(data);
           
           // Mark this step as completed when the page is visited
-          // Check if this slug is one of the main course steps
-          const isMainStep = courseSteps.some(step => step.slug === slug);
-          if (isMainStep) {
+          // Check if this course has a steps meta field (is part of the ordered course)
+          if (data.steps !== null && data.steps !== undefined && data.steps >= 1 && data.steps <= 20) {
             markStepCompleted(slug);
           }
         } else {
@@ -54,6 +76,8 @@ export default function StrategyCourseDetailPage() {
         setError(true);
       } finally {
         setLoading(false);
+        // Scroll to top after course loads
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
     fetchCourse();
@@ -125,19 +149,21 @@ export default function StrategyCourseDetailPage() {
             )}
           </div>
 
-          {/* Progress Indicator */}
-          <ProgressIndicator 
-            stepSlugs={courseSteps.map(step => step.slug)}
-            totalSteps={courseSteps.length}
-            className="mb-8"
-          />
+          {/* Progress Indicator - Only show if this course is part of the ordered steps */}
+          {courseSteps.length > 0 && courseSteps.some(step => step.slug === slug) && (
+            <ProgressIndicator 
+              stepSlugs={courseSteps.map(step => step.slug)}
+              totalSteps={courseSteps.length}
+              className="mb-8"
+            />
+          )}
 
           <div 
             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-p:my-6 prose-strong:text-gray-900 prose-strong:font-bold prose-a:text-primary-500 prose-a:no-underline hover:prose-a:underline prose-ul:my-6 prose-ol:my-6 prose-li:my-2"
             dangerouslySetInnerHTML={{ __html: course.content.rendered }}
           />
 
-          {/* Navigation Buttons */}
+          {/* Navigation Buttons - Only show if this course is part of the ordered steps */}
           {currentStep && (
             <div className="mt-12 pt-8 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -150,7 +176,7 @@ export default function StrategyCourseDetailPage() {
                     <ChevronLeft className="w-5 h-5 mr-2" />
                     <div className="text-left">
                       <div className="text-xs text-gray-500 uppercase tracking-wide">Previous</div>
-                      <div className="text-sm font-semibold">Step {previousStep.number}</div>
+                      <div className="text-sm font-semibold">Step {previousStep.steps || courseSteps.indexOf(previousStep) + 1}</div>
                     </div>
                   </Link>
                 ) : (
@@ -165,7 +191,7 @@ export default function StrategyCourseDetailPage() {
                   >
                     <div className="text-right mr-2">
                       <div className="text-xs text-white/80 uppercase tracking-wide">Next</div>
-                      <div className="text-sm font-semibold">Step {nextStep.number}</div>
+                      <div className="text-sm font-semibold">Step {nextStep.steps || courseSteps.indexOf(nextStep) + 1}</div>
                     </div>
                     <ChevronRight className="w-5 h-5" />
                   </Link>

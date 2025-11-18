@@ -43,6 +43,7 @@ export interface WordPressPost {
   };
   categories?: number[];
   tags?: number[];
+  steps?: number | null; // Step number meta field for strategy courses
   _embedded?: any;
 }
 
@@ -241,6 +242,34 @@ export async function getToolBySlug(slug: string): Promise<WordPressPost | null>
   } catch (error) {
     console.error(`Error fetching tool ${slug}:`, error);
     return null;
+  }
+}
+
+/**
+ * Get ordered strategy course steps (courses with steps meta field)
+ * Returns courses sorted by steps number (1-20)
+ */
+export async function getOrderedCourseSteps(): Promise<WordPressPost[]> {
+  try {
+    const allCourses = await getStrategyCourses({ 
+      per_page: 100,
+      orderby: 'date',
+      order: 'desc'
+    });
+    
+    // Filter courses that have a steps meta field and sort by steps number
+    const coursesWithSteps = allCourses
+      .filter(course => course.steps !== null && course.steps !== undefined && course.steps >= 1 && course.steps <= 20)
+      .sort((a, b) => {
+        const stepA = a.steps || 0;
+        const stepB = b.steps || 0;
+        return stepA - stepB;
+      });
+    
+    return coursesWithSteps;
+  } catch (error) {
+    console.error('Error fetching ordered course steps:', error);
+    return [];
   }
 }
 
