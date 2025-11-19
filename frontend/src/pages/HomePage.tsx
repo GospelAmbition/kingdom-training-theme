@@ -44,11 +44,11 @@ export default function HomePage() {
 
   return (
     <>
-      <Hero 
-        subtitle="Training Disciple Makers"
-        title="Media to Disciple Making Movements"
-        description="Like the men of Issachar who understood the times, we equip disciple makers to use media strategically—identifying spiritual seekers online and connecting them with face-to-face disciplers who help them discover, obey, and share all that Jesus taught."
-        ctaText="Start The MVP Course"
+      <Hero
+        subtitle="Media, Advertising, and AI"
+        title="Digital Disciple Making"
+        description="Identify spiritual seekers online and connect them with face-to-face disciple-makers who help them discover, obey, and share all that Jesus taught."
+        ctaText="Start the MVP Course"
         ctaLink="/strategy-courses"
       />
 
@@ -60,8 +60,8 @@ export default function HomePage() {
               How Media to Disciple Making Movements Works
             </h2>
             <p className="text-lg text-gray-700 leading-relaxed mb-8 text-center">
-              M2DMM functions like a funnel: introducing masses of people through targeted media content, 
-              filtering out disinterested individuals through digital conversations, and ultimately connecting 
+              M2DMM functions like a funnel: introducing masses of people through targeted media content,
+              filtering out disinterested individuals through digital conversations, and ultimately connecting
               genuine seekers with face-to-face disciplers who walk with them toward becoming multiplying disciples.
             </p>
             <div className="grid md:grid-cols-3 gap-6 mt-12">
@@ -87,30 +87,27 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Video Section */}
-      <section className="relative w-full bg-gradient-to-br from-secondary-900 via-secondary-800 to-primary-800 py-16">
-        <div className="container-custom">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
-              What is media to movement?
-            </h2>
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                src="https://player.vimeo.com/video/436776178?title=0&byline=0&portrait=0"
-                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-2xl"
-                frameBorder="0"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-                title="Kingdom Training Video"
-              />
+            <div className="mt-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-8">
+                What is media to movement?
+              </h2>
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  src="https://player.vimeo.com/video/436776178?title=0&byline=0&portrait=0"
+                  className="absolute top-0 left-0 w-full h-full rounded-lg shadow-2xl"
+                  frameBorder="0"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                  title="Kingdom Training Video"
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
+
+
 
       {/* The MVP Course Feature - Primary Conversion */}
       <section className="py-20 bg-gradient-to-br from-secondary-900 to-secondary-700 text-white">
@@ -120,7 +117,7 @@ export default function HomePage() {
               The MVP: Strategy Course
             </h2>
             <p className="text-xl text-secondary-100 mb-8 max-w-2xl mx-auto">
-              Our flagship course guides you through 10 core elements needed to craft a Media to Disciple 
+              Our flagship course guides you through 10 core elements needed to craft a Media to Disciple
               Making Movements strategy for any context. Complete your plan in 6-7 hours.
             </p>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8 text-left">
@@ -132,7 +129,7 @@ export default function HomePage() {
                   {/* Left Column: First half of steps */}
                   <div className="flex flex-col gap-4">
                     {courseSteps.slice(0, Math.ceil(courseSteps.length / 2)).map((step, index) => (
-                      <Link 
+                      <Link
                         key={step.id}
                         to={`/strategy-courses/${step.slug}`}
                         className="hover:text-accent-400 transition-colors"
@@ -146,7 +143,7 @@ export default function HomePage() {
                     {courseSteps.slice(Math.ceil(courseSteps.length / 2)).map((step, index) => {
                       const stepNumber = step.steps || Math.ceil(courseSteps.length / 2) + index + 1;
                       return (
-                        <Link 
+                        <Link
                           key={step.id}
                           to={`/strategy-courses/${step.slug}`}
                           className="hover:text-accent-400 transition-colors"
@@ -161,7 +158,7 @@ export default function HomePage() {
                 <p className="text-secondary-200">Loading course steps...</p>
               )}
             </div>
-            <Link 
+            <Link
               to="/strategy-courses"
               className="inline-flex items-center justify-center px-8 py-4 bg-accent-600 hover:bg-accent-500 text-secondary-900 font-semibold rounded-lg transition-colors duration-200 text-lg"
             >
@@ -176,8 +173,8 @@ export default function HomePage() {
         <div className="container-custom">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-gray-800">Latest Articles</h2>
-            <Link 
-              to="/articles" 
+            <Link
+              to="/articles"
               className="text-primary-500 hover:text-primary-600 font-medium"
             >
               View all →
@@ -192,7 +189,7 @@ export default function HomePage() {
           ) : (
             <div className="text-center py-12 bg-white rounded-lg">
               <p className="text-gray-600 mb-4">Articles will appear here once content is added to WordPress.</p>
-              <Link 
+              <Link
                 to="/articles"
                 className="text-primary-500 hover:text-primary-600 font-medium"
               >
@@ -208,8 +205,8 @@ export default function HomePage() {
         <div className="container-custom">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-gray-800">Featured Tools</h2>
-            <Link 
-              to="/tools" 
+            <Link
+              to="/tools"
               className="text-primary-500 hover:text-primary-600 font-medium"
             >
               View all →
@@ -224,7 +221,7 @@ export default function HomePage() {
           ) : (
             <div className="text-center py-12 bg-background-50 rounded-lg">
               <p className="text-gray-600 mb-4">Tools will appear here once content is added to WordPress.</p>
-              <Link 
+              <Link
                 to="/tools"
                 className="text-primary-500 hover:text-primary-600 font-medium"
               >
@@ -236,7 +233,7 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter CTA Section */}
-      <NewsletterCTA 
+      <NewsletterCTA
         variant="banner"
         title="Stay Connected"
         description="Get the latest training resources, articles, and insights delivered directly to your inbox."
@@ -252,30 +249,30 @@ export default function HomePage() {
               The Heavenly Economy
             </h2>
             <p className="text-lg text-primary-100 leading-relaxed mb-6">
-              We operate within what we call the &ldquo;Heavenly Economy&rdquo;—a principle that challenges 
-              the broken world&apos;s teaching that &ldquo;the more you get, the more you should keep.&rdquo; 
-              Instead, we reflect God&apos;s generous nature by offering free training, hands-on coaching, 
+              We operate within what we call the &ldquo;Heavenly Economy&rdquo;—a principle that challenges
+              the broken world&apos;s teaching that &ldquo;the more you get, the more you should keep.&rdquo;
+              Instead, we reflect God&apos;s generous nature by offering free training, hands-on coaching,
               and open-source tools like Disciple.Tools.
             </p>
             <p className="text-lg text-primary-100 leading-relaxed mb-8">
-              Our heart beats with passion for the unreached and least-reached peoples of the world. 
-              Every course, article, and tool serves the ultimate vision of seeing Disciple Making Movements 
+              Our heart beats with passion for the unreached and least-reached peoples of the world.
+              Every course, article, and tool serves the ultimate vision of seeing Disciple Making Movements
               catalyzed among people groups where the name of Jesus has never been proclaimed.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link 
+              <Link
                 to="/strategy-courses"
                 className="inline-flex items-center justify-center px-8 py-4 bg-accent-600 hover:bg-accent-500 text-secondary-900 font-semibold rounded-lg transition-colors duration-200"
               >
                 Start Your Strategy Course
               </Link>
-              <Link 
+              <Link
                 to="/articles"
                 className="inline-flex items-center justify-center px-8 py-4 border-2 border-white/30 hover:border-white text-white font-semibold rounded-lg transition-colors duration-200"
               >
                 Read Articles
               </Link>
-              <Link 
+              <Link
                 to="/tools"
                 className="inline-flex items-center justify-center px-8 py-4 border-2 border-white/30 hover:border-white text-white font-semibold rounded-lg transition-colors duration-200"
               >

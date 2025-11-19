@@ -3,19 +3,34 @@
  * Main navigation header with logo and menu
  */
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { LogIn, Mail } from 'lucide-react';
 
 export default function Header() {
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  const getLinkClass = (path: string) => {
+    const baseClass = "text-gray-700 hover:text-primary-500 font-medium transition-colors relative py-1";
+    const activeClass = "text-primary-600 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-0.5 after:bg-primary-500 after:rounded-full";
+    return isActive(path) ? `${baseClass} ${activeClass}` : baseClass;
+  };
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="container-custom py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <img 
-              src="https://ai.kingdom.training/wp-content/themes/kingdom-training-theme/dist/kt-logo-header.webp" 
-              alt="Kingdom.Training" 
+            <img
+              src="https://ai.kingdom.training/wp-content/themes/kingdom-training-theme/dist/kt-logo-header.webp"
+              alt="Kingdom.Training"
               className="h-10 w-auto"
             />
           </Link>
@@ -24,25 +39,25 @@ export default function Header() {
           <div className="flex items-center space-x-6">
             <Link
               to="/"
-              className="text-gray-700 hover:text-primary-500 font-medium transition-colors"
+              className={getLinkClass('/')}
             >
               Home
             </Link>
             <Link
               to="/strategy-courses"
-              className="text-gray-700 hover:text-primary-500 font-medium transition-colors"
+              className={getLinkClass('/strategy-courses')}
             >
               Strategy Course
             </Link>
             <Link
               to="/articles"
-              className="text-gray-700 hover:text-primary-500 font-medium transition-colors"
+              className={getLinkClass('/articles')}
             >
               Articles
             </Link>
             <Link
               to="/tools"
-              className="text-gray-700 hover:text-primary-500 font-medium transition-colors"
+              className={getLinkClass('/tools')}
             >
               Tools
             </Link>
