@@ -13,7 +13,7 @@ interface HeroProps {
   ctaLink?: string;
 }
 
-import LLMBackground from './LLMBackground';
+import GenMapBackground from './GenMapBackground';
 
 export default function Hero({
   title,
@@ -24,8 +24,8 @@ export default function Hero({
 }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-700 text-white">
-      <LLMBackground bottomOffset={-25} />
-      <div className="container-custom py-20 md:py-32 relative z-10">
+      <GenMapBackground />
+      <div className="container-custom py-24 md:py-40 relative z-10">
         <div className="max-w-4xl">
           {/* Subtitle */}
           <p className="text-accent-500 font-semibold mb-4 text-lg">

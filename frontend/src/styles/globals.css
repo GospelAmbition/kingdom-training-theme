@@ -188,6 +188,13 @@
   }
 }
 
+/* Column 3 (right column) - stays in focus */
+.code-container.column-3 {
+  animation: none;
+  filter: blur(0px);
+  opacity: 1;
+}
+
 .code-line {
   min-height: 1.6em; /* Prevent jumping */
   margin-bottom: 2px;

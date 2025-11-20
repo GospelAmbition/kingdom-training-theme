@@ -8,6 +8,7 @@ import StructuredData from '@/components/StructuredData';
 import KeyInfoSection from '@/components/KeyInfoSection';
 import { getArticles, getTools, getOrderedCourseSteps, WordPressPost } from '@/lib/wordpress';
 import { Link } from 'react-router-dom';
+import { Video, Filter, Users } from 'lucide-react';
 
 export default function HomePage() {
   const [articles, setArticles] = useState<WordPressPost[]>([]);
@@ -66,8 +67,8 @@ export default function HomePage() {
       />
       <Hero
         subtitle="Media, Advertising, and AI"
-        title="Digital → Disciple Making"
-        description="Identify spiritual seekers online and connect them with face-to-face disciple-makers who help them discover, obey, and share all that Jesus taught."
+        title="Innovate → Accelerate → Make Disciples"
+        description="Accelerate your disciple making with strategic use of media, advertising, and AI tools. Kingdom.Training is a resource for disciple makers to use media to accelerate Disciple Making Movements."
         ctaText="Start the MVP Course"
         ctaLink="/strategy-courses"
       />
@@ -98,16 +99,21 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-lg px-6 py-8 mb-8">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
-                How it works
+              Digital → Disciple Making
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed text-center">
-                M2DMM functions like a funnel: introducing masses of people through targeted media content,
-                filtering out disinterested individuals through digital conversations, and ultimately connecting
+                It works like a funnel: (Start wide) Introduce masses of people to truth through targeted media content,
+                (Narrow down) filter out disinterested individuals through digital conversations, and (Release) ultimately connect
                 genuine seekers with face-to-face disciplers who walk with them toward becoming multiplying disciples.
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 mt-12">
               <div className="text-center p-6 bg-background-50 rounded-lg">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
+                    <Video className="w-8 h-8 text-primary-600" />
+                  </div>
+                </div>
                 <div className="text-4xl font-bold text-primary-500 mb-2">1</div>
                 <h3 className="font-semibold text-gray-800 mb-2">Media Content</h3>
                 <p className="text-sm text-gray-600">
@@ -115,6 +121,11 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="text-center p-6 bg-background-50 rounded-lg">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
+                    <Filter className="w-8 h-8 text-primary-600" />
+                  </div>
+                </div>
                 <div className="text-4xl font-bold text-primary-500 mb-2">2</div>
                 <h3 className="font-semibold text-gray-800 mb-2">Digital Filtering</h3>
                 <p className="text-sm text-gray-600">
@@ -122,6 +133,11 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="text-center p-6 bg-background-50 rounded-lg">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
+                    <Users className="w-8 h-8 text-primary-600" />
+                  </div>
+                </div>
                 <div className="text-4xl font-bold text-primary-500 mb-2">3</div>
                 <h3 className="font-semibold text-gray-800 mb-2">Face-to-Face</h3>
                 <p className="text-sm text-gray-600">

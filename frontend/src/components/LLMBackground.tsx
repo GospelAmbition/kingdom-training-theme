@@ -113,7 +113,7 @@ export default function LLMBackground({ bottomOffset = 0 }: LLMBackgroundProps) 
     // Create three columns with different starting points
     // Column 1 starts at the beginning
     // Column 2 starts 1/3 through
-    // Column 3 starts 2/3 through
+    // Column 3 starts at the beginning (in focus)
     const column1 = {
         containerRef: useRef<HTMLDivElement>(null),
         currentLineRef: useRef<number>(0),
@@ -130,7 +130,7 @@ export default function LLMBackground({ bottomOffset = 0 }: LLMBackgroundProps) 
 
     const column3 = {
         containerRef: useRef<HTMLDivElement>(null),
-        currentLineRef: useRef<number>(Math.floor((codeLines.length * 2) / 3)),
+        currentLineRef: useRef<number>(0),
         currentCharRef: useRef<number>(0),
         timeoutRef: useRef<NodeJS.Timeout | null>(null),
     };
@@ -273,7 +273,7 @@ export default function LLMBackground({ bottomOffset = 0 }: LLMBackgroundProps) 
             {/* Column 3 - Hidden on mobile and tablet, shows on lg+ */}
             <div 
                 ref={column3.containerRef}
-                className="code-container absolute h-full hidden lg:block"
+                className="code-container column-3 absolute h-full hidden lg:block"
                 style={column3Style}
             />
         </div>

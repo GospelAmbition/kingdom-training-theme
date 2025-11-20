@@ -1,0 +1,477 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0a0e1a;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.genmap-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(180deg, #0a0e1a 0%, #131729 50%, #0a0e1a 100%);
+    overflow: hidden;
+}
+
+/* Text Input Layer */
+.text-layer {
+    position: absolute;
+    bottom: 22%;
+    right: 5%;
+    width: 80%;
+    max-width: 700px;
+    z-index: 10;
+}
+
+.text-prompt {
+    font-size: 18px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    text-align: left;
+    padding: 20px 30px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    box-shadow: 
+        0 4px 20px rgba(59, 130, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    min-height: 60px;
+    position: relative;
+}
+
+.cursor-blink {
+    display: inline-block;
+    width: 2px;
+    height: 20px;
+    background: #3b82f6;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+    position: absolute;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Particles Container */
+.particles-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+.particle.data {
+    background: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.particle.process {
+    background: #8b5cf6;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.8), 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+.particle.create {
+    background: #06b6d4;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+}
+
+/* Video Generation Layer */
+.video-generation {
+    position: absolute;
+    top: 48%;
+    right: 5%;
+    transform: translateY(-50%);
+    width: 600px;
+    height: 340px;
+    z-index: 7;
+}
+
+.frame-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.video-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px;
+    height: 90px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid rgba(139, 92, 246, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.video-frame::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 16px;
+    border-color: transparent transparent transparent rgba(139, 92, 246, 0.7);
+}
+
+/* YouTube Layer */
+.youtube-layer {
+    position: absolute;
+    top: 8%;
+    right: 5%;
+    width: 90%;
+    max-width: 640px;
+    z-index: 10;
+    opacity: 0;
+    animation: fadeInYoutube 2s ease-out 3s forwards;
+}
+
+@keyframes fadeInYoutube {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.youtube-player {
+    background: #282828;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    transition: background 0.5s ease;
+}
+
+/* Platform-specific player styling */
+.youtube-layer[data-platform="youtube"] .youtube-player {
+    background: #282828;
+}
+
+.youtube-layer[data-platform="tiktok"] .youtube-player {
+    background: #000000;
+}
+
+.youtube-layer[data-platform="facebook"] .youtube-player {
+    background: #18191a;
+}
+
+.player-screen {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    background: #000;
+    overflow: hidden;
+}
+
+.player-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%);
+    opacity: 0.8;
+    transition: background 0.5s ease;
+}
+
+/* Platform-specific screen backgrounds */
+.youtube-layer[data-platform="youtube"] .player-screen::before {
+    background: linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%);
+}
+
+.youtube-layer[data-platform="tiktok"] .player-screen::before {
+    background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+}
+
+.youtube-layer[data-platform="facebook"] .player-screen::before {
+    background: linear-gradient(135deg, #242526 0%, #18191a 100%);
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    animation: playButtonPulse 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Show only the active platform's play button */
+.youtube-layer[data-platform="youtube"] .youtube-play {
+    opacity: 0.9;
+}
+
+.youtube-layer[data-platform="tiktok"] .tiktok-play {
+    opacity: 0.9;
+}
+
+.youtube-layer[data-platform="facebook"] .facebook-play {
+    opacity: 0.9;
+}
+
+@keyframes playButtonPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+.player-controls {
+    background: #181818;
+    padding: 8px 12px;
+    transition: background 0.5s ease;
+}
+
+.youtube-layer[data-platform="youtube"] .player-controls {
+    background: #181818;
+}
+
+.youtube-layer[data-platform="tiktok"] .player-controls {
+    background: #000000;
+}
+
+.youtube-layer[data-platform="facebook"] .player-controls {
+    background: #242526;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #ff0000;
+    width: 0%;
+    border-radius: 2px;
+    animation: progressFill 8s linear infinite;
+    transition: background 0.5s ease;
+}
+
+/* Platform-specific progress colors */
+.youtube-layer[data-platform="youtube"] .progress-fill {
+    background: #ff0000;
+}
+
+.youtube-layer[data-platform="tiktok"] .progress-fill {
+    background: #fe2c55;
+}
+
+.youtube-layer[data-platform="facebook"] .progress-fill {
+    background: #1877f2;
+}
+
+@keyframes progressFill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.control-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    font-size: 12px;
+}
+
+.control-icon {
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.control-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.time-display {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+}
+
+.right-controls {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* Flow Lines */
+.flow-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 6;
+}
+
+.flow-line {
+    stroke: url(#lineGradient);
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 10 5;
+    animation: flowAnimation 3s linear infinite;
+}
+
+@keyframes flowAnimation {
+    0% {
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dashoffset: -30;
+    }
+}
+
+/* Glow effects */
+.text-prompt::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #3b82f6);
+    border-radius: 12px;
+    z-index: -1;
+    opacity: 0;
+    animation: borderGlow 3s ease-in-out infinite;
+    filter: blur(10px);
+}
+
+@keyframes borderGlow {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .text-layer {
+        width: 90%;
+    }
+    
+    .text-prompt {
+        font-size: 14px;
+        padding: 15px 20px;
+    }
+    
+    .video-generation {
+        width: 400px;
+        height: 225px;
+    }
+    
+    .video-frame {
+        width: 120px;
+        height: 68px;
+    }
+    
+    .youtube-layer {
+        width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .text-layer {
+        bottom: 18%;
+    }
+    
+    .text-prompt {
+        font-size: 11px;
+        padding: 10px 14px;
+        min-height: 50px;
+    }
+    
+    .video-generation {
+        width: 300px;
+        height: 170px;
+    }
+    
+    .video-frame {
+        width: 90px;
+        height: 51px;
+    }
+    
+    .play-button {
+        width: 48px;
+        height: 34px;
+    }
+    
+    .control-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Background ambient particles */
+.genmap-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+    animation: ambientPulse 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes ambientPulse {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
