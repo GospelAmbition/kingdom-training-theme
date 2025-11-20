@@ -98,7 +98,7 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-lg px-6 py-8 mb-8">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
-                How Media to Disciple Making Movements Works
+                How it works
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed text-center">
                 M2DMM functions like a funnel: introducing masses of people through targeted media content,

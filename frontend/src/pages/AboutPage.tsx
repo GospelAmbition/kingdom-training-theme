@@ -54,7 +54,7 @@ export default function AboutPage() {
 
           {/* How We Work */}
           <section className="mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">How Media to Disciple Making Movements Works</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">How it works</h2>
             
             <div className="space-y-8">
               <div>
