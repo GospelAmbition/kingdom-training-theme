@@ -121,7 +121,7 @@ export default function ArticleDetailPage() {
         }}
       />
       {article.featured_image_url && (
-        <div className="w-full h-96 bg-gray-200">
+        <div className="w-full h-48 md:h-96 bg-gray-200">
           <img
             src={article.featured_image_url}
             alt={article.title.rendered}

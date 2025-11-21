@@ -19,7 +19,7 @@ export default function PageHeader({
   return (
     <section className={`${backgroundClass} text-white relative overflow-hidden`}>
       {backgroundComponent}
-      <div className="container-custom py-16 md:py-24 relative z-10">
+      <div className="container-custom py-8 md:py-24 relative z-10">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             {title}

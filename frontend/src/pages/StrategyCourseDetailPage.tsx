@@ -182,7 +182,7 @@ export default function StrategyCourseDetailPage() {
         }}
       />
       {course.featured_image_url && (
-        <div className="w-full h-96 bg-gray-200">
+        <div className="w-full h-48 md:h-96 bg-gray-200">
           <img
             src={course.featured_image_url}
             alt={course.title.rendered}

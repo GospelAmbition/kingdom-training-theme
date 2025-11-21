@@ -319,7 +319,7 @@ export default function GenMapBackground() {
     }, []);
 
     return (
-        <div ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none z-0" style={{ opacity: 0.5 }}>
+        <div ref={containerRef} className="hidden md:block absolute inset-0 overflow-hidden pointer-events-none z-0" style={{ opacity: 0.5 }}>
             <style>{`
                 .genmap-bg-container .text-prompt {
                     font-size: 18px;
@@ -608,7 +608,7 @@ export default function GenMapBackground() {
             `}</style>
             <div className="genmap-bg-container w-full h-full">
                 {/* Text Input Layer */}
-                <div className="absolute" style={{ bottom: 'calc(16% - 15px)', right: '5%', width: '80%', maxWidth: '700px', zIndex: 10 }}>
+                <div className="absolute" style={{ bottom: 'calc(19% - 15px)', right: '5%', width: '80%', maxWidth: '700px', zIndex: 10 }}>
                     <div ref={textPromptRef} className="text-prompt"></div>
                 </div>
                 
