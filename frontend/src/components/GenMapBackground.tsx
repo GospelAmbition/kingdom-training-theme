@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { getThemeAssetUrl } from '@/lib/utils';
 
 // Text prompts that will cycle
 const prompts = [
@@ -607,7 +608,7 @@ export default function GenMapBackground() {
             `}</style>
             <div className="genmap-bg-container w-full h-full">
                 {/* Text Input Layer */}
-                <div className="absolute" style={{ bottom: '22%', right: '5%', width: '80%', maxWidth: '700px', zIndex: 10 }}>
+                <div className="absolute" style={{ bottom: 'calc(16% - 15px)', right: '5%', width: '80%', maxWidth: '700px', zIndex: 10 }}>
                     <div ref={textPromptRef} className="text-prompt"></div>
                 </div>
                 
@@ -626,7 +627,7 @@ export default function GenMapBackground() {
                             {/* Spinning Gear */}
                             <div className="gear-image-container">
                                 <img 
-                                    src="/gear.png" 
+                                    src={getThemeAssetUrl('gear.png')} 
                                     alt="Spinning gear" 
                                     className="gear-image"
                                 />
