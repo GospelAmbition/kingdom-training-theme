@@ -23,7 +23,7 @@ interface Particle {
     opacity: number;
 }
 
-type Platform = 'youtube' | 'tiktok' | 'facebook';
+type Platform = 'desktop' | 'tablet' | 'mobile';
 
 export default function GenMapBackground() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -32,7 +32,7 @@ export default function GenMapBackground() {
     const frameContainerRef = useRef<HTMLDivElement>(null);
     const playerScreenRef = useRef<HTMLDivElement>(null);
     const youtubeLayerRef = useRef<HTMLDivElement>(null);
-    const platformRef = useRef<Platform>('youtube');
+    const platformRef = useRef<Platform>('desktop');
     
     const currentPromptIndexRef = useRef(0);
     const currentCharIndexRef = useRef(0);
@@ -198,7 +198,8 @@ export default function GenMapBackground() {
         };
 
         const updatePlatform = () => {
-            const platforms: Platform[] = ['youtube', 'tiktok', 'facebook'];
+            // Cycle through desktop, tablet, and mobile
+            const platforms: Platform[] = ['desktop', 'tablet', 'mobile'];
             const currentIndex = platforms.indexOf(platformRef.current);
             const nextIndex = (currentIndex + 1) % platforms.length;
             platformRef.current = platforms[nextIndex];
@@ -206,6 +207,8 @@ export default function GenMapBackground() {
             // Update the player appearance
             if (youtubeLayerRef.current) {
                 youtubeLayerRef.current.setAttribute('data-platform', platformRef.current);
+                // Debug: verify platform switching
+                console.log('Platform switched to:', platformRef.current);
             }
         };
 
@@ -407,20 +410,164 @@ export default function GenMapBackground() {
                     border-radius: 12px;
                     overflow: hidden;
                     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-                    transition: background 0.5s ease;
+                    transition: all 0.5s ease;
+                    position: relative;
                 }
 
                 /* Platform-specific player styling */
-                .genmap-bg-container .youtube-layer[data-platform="youtube"] .youtube-player {
-                    background: #282828;
+                /* Desktop - Monitor screen */
+                .genmap-bg-container .youtube-layer[data-platform="desktop"] .youtube-player {
+                    background: #1a1a1a;
+                    border-radius: 8px;
+                    padding: 0;
+                    box-shadow: 
+                        0 8px 30px rgba(0, 0, 0, 0.5),
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+                    border: 2px solid rgba(60, 60, 60, 0.5);
+                    position: relative;
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="tiktok"] .youtube-player {
-                    background: #000000;
+                /* Desktop monitor stand/base */
+                .genmap-bg-container .youtube-layer[data-platform="desktop"] .youtube-player::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 200px;
+                    height: 12px;
+                    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+                    border-radius: 4px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="facebook"] .youtube-player {
-                    background: #18191a;
+                /* Tablet - iPad-like */
+                .genmap-bg-container .youtube-layer[data-platform="tablet"] .youtube-player {
+                    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%) !important;
+                    border-radius: 24px !important;
+                    padding: 12px !important;
+                    box-shadow: 
+                        0 12px 40px rgba(0, 0, 0, 0.9), 
+                        inset 0 0 0 5px rgba(255, 255, 255, 0.25),
+                        inset 0 0 0 10px rgba(0, 0, 0, 0.6),
+                        0 0 0 3px rgba(60, 60, 60, 0.8);
+                    border: 3px solid rgba(100, 100, 100, 0.3);
+                    transform: scale(0.95);
+                    transition: all 0.5s ease;
+                }
+
+                /* Mobile - Portrait phone - Position in middle right, below text box */
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] {
+                    top: 50% !important;
+                    bottom: auto !important;
+                    right: 5% !important;
+                    width: 90% !important;
+                    max-width: 360px !important;
+                    transform: translateY(-50%) !important;
+                }
+
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .youtube-player {
+                    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%) !important;
+                    border-radius: 40px !important;
+                    padding: 16px 8px !important;
+                    box-shadow: 
+                        0 4px 15px rgba(0, 0, 0, 0.4), 
+                        inset 0 0 0 6px rgba(255, 255, 255, 0.3),
+                        inset 0 0 0 12px rgba(0, 0, 0, 0.7),
+                        0 0 0 4px rgba(80, 80, 80, 0.9) !important;
+                    border: 4px solid rgba(150, 150, 150, 0.4) !important;
+                    transform: scale(0.85) !important;
+                    max-width: 360px !important;
+                    margin: 0 auto;
+                    transition: all 0.5s ease;
+                }
+
+                /* Tablet Frame - iPad-like */
+                .genmap-bg-container .mobile-phone-frame {
+                    position: absolute;
+                    top: -12px;
+                    left: -12px;
+                    right: -12px;
+                    bottom: -12px;
+                    pointer-events: none;
+                    z-index: 15;
+                    opacity: 0;
+                    transition: opacity 0.5s ease;
+                    border: 6px solid rgba(50, 50, 50, 0.95);
+                    border-radius: 28px;
+                    background: linear-gradient(135deg, rgba(60, 60, 60, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
+                    box-shadow: 
+                        inset 0 0 0 2px rgba(255, 255, 255, 0.2),
+                        0 0 0 2px rgba(0, 0, 0, 0.6),
+                        0 8px 20px rgba(0, 0, 0, 0.8);
+                }
+
+                .genmap-bg-container .youtube-layer[data-platform="tablet"] .mobile-phone-frame {
+                    opacity: 1;
+                }
+
+                /* Mobile Phone Frame - Portrait phone */
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .mobile-phone-frame {
+                    opacity: 1;
+                    border: 8px solid rgba(50, 50, 50, 0.95);
+                    border-radius: 44px;
+                    top: -16px;
+                    left: -8px;
+                    right: -8px;
+                    bottom: -16px;
+                }
+
+                /* Mobile phone notch */
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .mobile-phone-frame::before {
+                    content: '';
+                    position: absolute;
+                    top: -8px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 120px;
+                    height: 24px;
+                    background: linear-gradient(135deg, rgba(50, 50, 50, 0.98) 0%, rgba(40, 40, 40, 0.98) 100%);
+                    border-radius: 0 0 18px 18px;
+                    z-index: 16;
+                    border: 2px solid rgba(0, 0, 0, 0.3);
+                    border-top: none;
+                }
+
+                .genmap-bg-container .mobile-status-bar {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 24px;
+                    background: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0 12px;
+                    font-size: 10px;
+                    color: rgba(255, 255, 255, 0.95);
+                    font-weight: 600;
+                    z-index: 11;
+                    backdrop-filter: blur(10px);
+                    opacity: 0;
+                    transition: opacity 0.5s ease;
+                }
+
+                .genmap-bg-container .youtube-layer[data-platform="tablet"] .mobile-status-bar,
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .mobile-status-bar {
+                    opacity: 1;
+                }
+
+                .genmap-bg-container .mobile-time {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    letter-spacing: 0.5px;
+                }
+
+                .genmap-bg-container .mobile-status-icons {
+                    display: flex;
+                    gap: 4px;
+                    align-items: center;
+                    font-size: 9px;
                 }
 
                 .genmap-bg-container .player-screen {
@@ -429,6 +576,11 @@ export default function GenMapBackground() {
                     padding-top: 56.25%;
                     background: #000;
                     overflow: hidden;
+                }
+
+                /* Mobile portrait aspect ratio */
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .player-screen {
+                    padding-top: 177.78%; /* 9:16 aspect ratio for portrait phone */
                 }
 
                 .genmap-bg-container .player-screen::before {
@@ -444,16 +596,29 @@ export default function GenMapBackground() {
                 }
 
                 /* Platform-specific screen backgrounds */
-                .genmap-bg-container .youtube-layer[data-platform="youtube"] .player-screen::before {
+                .genmap-bg-container .youtube-layer[data-platform="desktop"] .player-screen::before {
                     background: linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%);
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="tiktok"] .player-screen::before {
-                    background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+                .genmap-bg-container .youtube-layer[data-platform="tablet"] .player-screen {
+                    border-radius: 16px;
+                    overflow: hidden;
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="facebook"] .player-screen::before {
-                    background: linear-gradient(135deg, #242526 0%, #18191a 100%);
+                .genmap-bg-container .youtube-layer[data-platform="tablet"] .player-screen::before {
+                    background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+                    border-radius: 16px;
+                }
+
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .player-screen {
+                    border-radius: 24px;
+                    overflow: hidden;
+                    margin-top: 0;
+                }
+
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .player-screen::before {
+                    background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+                    border-radius: 24px;
                 }
 
                 .genmap-bg-container .gear-image-container {
@@ -461,7 +626,7 @@ export default function GenMapBackground() {
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%);
-                    z-index: 10;
+                    z-index: 100;
                     pointer-events: none;
                     display: flex;
                     align-items: center;
@@ -473,6 +638,8 @@ export default function GenMapBackground() {
                     height: 160px;
                     animation: rotateGear 3s linear infinite;
                     opacity: 0.9;
+                    position: relative;
+                    z-index: 101;
                 }
 
                 @keyframes rotateGear {
@@ -491,16 +658,19 @@ export default function GenMapBackground() {
                     transition: background 0.5s ease;
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="youtube"] .player-controls {
+                .genmap-bg-container .youtube-layer[data-platform="desktop"] .player-controls {
                     background: #181818;
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="tiktok"] .player-controls {
-                    background: #000000;
+                .genmap-bg-container .youtube-layer[data-platform="tablet"] .player-controls {
+                    background: #0a0a0a;
+                    border-radius: 0 0 16px 16px;
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="facebook"] .player-controls {
-                    background: #242526;
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .player-controls {
+                    background: #0a0a0a;
+                    border-radius: 0 0 24px 24px;
+                    margin-top: -1px;
                 }
 
                 .genmap-bg-container .progress-bar {
@@ -523,16 +693,16 @@ export default function GenMapBackground() {
                 }
 
                 /* Platform-specific progress colors */
-                .genmap-bg-container .youtube-layer[data-platform="youtube"] .progress-fill {
+                .genmap-bg-container .youtube-layer[data-platform="desktop"] .progress-fill {
                     background: #ff0000;
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="tiktok"] .progress-fill {
-                    background: #fe2c55;
+                .genmap-bg-container .youtube-layer[data-platform="tablet"] .progress-fill {
+                    background: #007aff;
                 }
 
-                .genmap-bg-container .youtube-layer[data-platform="facebook"] .progress-fill {
-                    background: #1877f2;
+                .genmap-bg-container .youtube-layer[data-platform="mobile"] .progress-fill {
+                    background: #007aff;
                 }
 
                 @keyframes progressFill {
@@ -621,10 +791,21 @@ export default function GenMapBackground() {
                 </div>
                 
                 {/* Video Player Output Layer */}
-                <div ref={youtubeLayerRef} className="youtube-layer absolute" data-platform="youtube" style={{ top: '8%', right: '5%', width: '90%', maxWidth: '640px', zIndex: 10 }}>
+                <div ref={youtubeLayerRef} className="youtube-layer absolute" data-platform="desktop" style={{ top: '8%', right: '5%', width: '90%', maxWidth: '640px', zIndex: 10 }}>
                     <div className="youtube-player">
+                        {/* Mobile Phone Frame - shown when platform is 'mobile' */}
+                        <div className="mobile-phone-frame"></div>
                         <div ref={playerScreenRef} className="player-screen">
-                            {/* Spinning Gear */}
+                            {/* Mobile Status Bar - shown when platform is 'mobile' */}
+                            <div className="mobile-status-bar">
+                                <span className="mobile-time">9:41</span>
+                                <div className="mobile-status-icons">
+                                    <span className="mobile-signal">📶</span>
+                                    <span className="mobile-wifi">📶</span>
+                                    <span className="mobile-battery">🔋</span>
+                                </div>
+                            </div>
+                            {/* Spinning Gear - visible in both video and mobile modes */}
                             <div className="gear-image-container">
                                 <img 
                                     src={getThemeAssetUrl('gear.png')} 
