@@ -75,14 +75,28 @@ export async function getCurrentUser(): Promise<User | null> {
 
     // Handle 200 OK responses (even if null)
     if (response.status === 200) {
-      const data = await response.json();
+      // Get response text first to check if it's empty
+      const text = await response.text();
       
-      // If the API returns null (no user), return null
-      if (!data || data === null || (typeof data === 'object' && Object.keys(data).length === 0)) {
+      // If response is empty or just "null", user is not logged in
+      if (!text || text.trim() === '' || text.trim() === 'null') {
         return null;
       }
+      
+      // Try to parse as JSON
+      try {
+        const data = JSON.parse(text);
+        
+        // If the API returns null (no user), return null
+        if (!data || data === null || (typeof data === 'object' && Object.keys(data).length === 0)) {
+          return null;
+        }
 
-      return data;
+        return data;
+      } catch (parseError) {
+        // If JSON parsing fails, return null (user is not logged in)
+        return null;
+      }
     }
 
     // For any other status, user is not authenticated
