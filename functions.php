@@ -29,13 +29,26 @@ function gaal_enable_cors() {
     });
     
     // Ensure cookies are sent with REST API requests
-    add_filter('rest_authentication_errors', function($result) {
+    add_filter('rest_authentication_errors', function($result, $server = null, $request = null) {
         // Allow our custom auth endpoint to work without requiring authentication
         if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/gaal/v1/auth/me') !== false) {
             return true; // Allow the request
         }
+        
+        // Allow Gospel Ambition Web Forms endpoints to work without authentication
+        if ($request && method_exists($request, 'get_route')) {
+            $route = $request->get_route();
+            if (strpos($route, '/go-webform/') === 0) {
+                return true; // Allow access
+            }
+        }
+        // Fallback: check REQUEST_URI if route is not available
+        if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/go-webform/') !== false) {
+            return true; // Allow the request
+        }
+        
         return $result;
-    }, 20);
+    }, 20, 3);
 }
 add_action('rest_api_init', 'gaal_enable_cors');
 
@@ -795,6 +808,31 @@ function gaal_register_newsletter_api() {
     ));
 }
 add_action('rest_api_init', 'gaal_register_newsletter_api');
+
+// Register shortcode processing endpoint
+function gaal_register_shortcode_api() {
+    register_rest_route('gaal/v1', '/shortcode/render', array(
+        'methods' => 'POST',
+        'callback' => function($request) {
+            $shortcode = sanitize_text_field($request->get_param('shortcode'));
+            
+            if (empty($shortcode)) {
+                return new WP_Error('missing_shortcode', 'Shortcode is required', array('status' => 400));
+            }
+            
+            // Process the shortcode
+            // Note: do_shortcode() processes WordPress shortcodes and returns the rendered HTML
+            $rendered = do_shortcode($shortcode);
+            
+            return array(
+                'success' => true,
+                'html' => $rendered,
+            );
+        },
+        'permission_callback' => '__return_true',
+    ));
+}
+add_action('rest_api_init', 'gaal_register_shortcode_api');
 
 // Add Steps meta box for Strategy Course post type
 function gaal_add_steps_meta_box() {

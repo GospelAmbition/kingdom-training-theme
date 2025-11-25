@@ -584,3 +584,29 @@ export async function subscribeToNewsletter(email: string, name?: string): Promi
   return;
 }
 
+/**
+ * Render a WordPress shortcode
+ * @param shortcode The shortcode string (e.g., '[go_display_opt_in name="Disciple.Tools" source="dt_news"]')
+ * @returns The rendered HTML from the shortcode
+ */
+export async function renderShortcode(shortcode: string): Promise<string> {
+  const response = await fetch(`${API_URL}/gaal/v1/shortcode/render`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      shortcode,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const errorMessage = data.message || data.code || 'Failed to render shortcode';
+    throw new Error(errorMessage);
+  }
+
+  return data.html || '';
+}
+
