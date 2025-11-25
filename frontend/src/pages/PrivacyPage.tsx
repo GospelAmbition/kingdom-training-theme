@@ -2,8 +2,6 @@ import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 
 export default function PrivacyPage() {
-  const currentYear = new Date().getFullYear();
-  
   return (
     <>
       <SEO
