@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Edit } from 'lucide-react';
 import { getCurrentUser, User } from '@/lib/auth';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AdminEditLinkProps {
   postId: number;
@@ -11,6 +12,7 @@ interface AdminEditLinkProps {
  * Shows an edit icon link to WordPress admin for logged-in administrators and editors
  */
 export default function AdminEditLink({ postId }: AdminEditLinkProps) {
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -119,8 +121,8 @@ export default function AdminEditLink({ postId }: AdminEditLinkProps) {
       target="_blank"
       rel="noopener noreferrer"
       className="fixed top-20 right-4 z-50 p-2 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200 border border-gray-200 hover:border-primary-500 group"
-      title="Edit in WordPress Admin"
-      aria-label="Edit in WordPress Admin"
+      title={t('admin_edit_link_title')}
+      aria-label={t('admin_edit_link_aria_label')}
     >
       <Edit className="w-5 h-5 text-gray-600 group-hover:text-primary-500 transition-colors duration-200" />
     </a>

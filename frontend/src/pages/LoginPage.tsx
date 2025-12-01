@@ -116,7 +116,7 @@ export default function LoginPage() {
     <>
       <SEO
         title={t('page_login')}
-        description="Login to Kingdom.Training to access your account and WordPress admin dashboard."
+        description={t('seo_login_description')}
         url="/login"
         noindex={true}
         nofollow={true}

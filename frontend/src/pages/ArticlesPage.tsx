@@ -90,13 +90,13 @@ export default function ArticlesPage() {
     <>
       <SEO
         title={t('page_articles')}
-        description="Practical guidance, best practices, and real-world insights from the Media to Disciple Making Movements community. Learn from practitioners implementing M2DMM strategies around the world."
+        description={t('seo_articles_description')}
         keywords="M2DMM articles, disciple making movements, media strategy, digital evangelism, church planting articles, online ministry, practical discipleship, field insights, kingdom training articles"
         url="/articles"
       />
       <PageHeader
         title={t('page_articles')}
-        description="Practical guidance, best practices, and real-world insights from the Media to Disciple Making Movements community. Learn from practitioners implementing M2DMM strategies around the world."
+        description={t('seo_articles_description')}
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
         backgroundComponent={<IdeasBackground />}
       />

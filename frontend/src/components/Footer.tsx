@@ -27,7 +27,7 @@ export default function Footer() {
           name: 'Kingdom.Training',
           url: siteUrl,
           logo: logoUrl,
-          description: 'Training disciple makers to use media to accelerate Disciple Making Movements. Equipping practitioners with practical strategies that bridge online engagement with face-to-face discipleship.',
+          description: t('footer_mission_statement'),
           sameAs: [
             'https://twitter.com/kingdomtraining',
             // Add other social media profiles as available
@@ -36,29 +36,29 @@ export default function Footer() {
         website={{
           name: 'Kingdom.Training',
           url: siteUrl,
-          description: 'Training disciple makers to use media to accelerate Disciple Making Movements. Equipping practitioners with practical strategies that bridge online engagement with face-to-face discipleship.',
+          description: t('footer_mission_statement'),
         }}
         faq={{
           questions: [
             {
-              question: 'What is Media to Disciple Making Movements (M2DMM)?',
-              answer: 'Media to Disciple Making Movements (M2DMM) is a strategic approach that uses targeted media content to identify spiritual seekers online and connect them with face-to-face disciple-makers. It functions like a funnel: introducing masses of people through targeted media content, filtering out disinterested individuals through digital conversations, and ultimately connecting genuine seekers with face-to-face disciplers who help them discover, obey, and share all that Jesus taught.',
+              question: t('faq_m2dmm_question'),
+              answer: t('faq_m2dmm_answer'),
             },
             {
-              question: 'What is the MVP Strategy Course?',
-              answer: 'The MVP (Minimum Viable Product) Strategy Course is our flagship 10-step program that guides you through the core elements needed to craft a Media to Disciple Making Movements strategy for any context. The course helps you develop your complete M2DMM strategy and can be completed in 6-7 hours.',
+              question: t('faq_mvp_course_question'),
+              answer: t('faq_mvp_course_answer'),
             },
             {
-              question: 'What is Disciple.Tools?',
-              answer: 'Disciple.Tools is our free, open-source disciple relationship management system designed specifically for M2DMM practitioners. It helps track and manage disciple-making relationships and movements.',
+              question: t('faq_disciple_tools_question'),
+              answer: t('faq_disciple_tools_answer'),
             },
             {
-              question: 'What is the Heavenly Economy?',
-              answer: 'The Heavenly Economy is a principle that challenges the broken world\'s teaching that "the more you get, the more you should keep." Instead, we reflect God\'s generous nature by offering free training, hands-on coaching, and open-source tools like Disciple.Tools.',
+              question: t('faq_heavenly_economy_question'),
+              answer: t('faq_heavenly_economy_answer'),
             },
             {
-              question: 'Who is Kingdom.Training for?',
-              answer: 'Kingdom.Training is for disciple makers, church planters, missionaries, and ministry leaders who want to use media strategically to accelerate Disciple Making Movements. We particularly focus on equipping those working with unreached and least-reached peoples.',
+              question: t('faq_kingdom_training_for_question'),
+              answer: t('faq_kingdom_training_for_answer'),
             },
           ],
         }}
@@ -159,19 +159,19 @@ export default function Footer() {
         <h2>{t('footer_key_definitions')}</h2>
         <dl>
           <dt>Media to Disciple Making Movements (M2DMM)</dt>
-          <dd>A strategic approach that uses targeted media content to identify spiritual seekers online and connect them with face-to-face disciple-makers. The process involves three stages: 1) Media Content - targeted content reaches entire people groups through platforms like Facebook and Google Ads, 2) Digital Filtering - trained responders dialogue with seekers online, identifying persons of peace ready for face-to-face engagement, 3) Face-to-Face Discipleship - multipliers meet seekers in person, guiding them through discovery, obedience, and sharing in reproducing communities.</dd>
+          <dd>{t('definition_m2dmm')}</dd>
           
           <dt>Disciple Making Movements (DMM)</dt>
-          <dd>Reproducing communities of disciples who discover, obey, and share all that Jesus taught, resulting in exponential multiplication of disciples and churches.</dd>
+          <dd>{t('definition_dmm')}</dd>
           
           <dt>Persons of Peace</dt>
-          <dd>Individuals who are open to the gospel message and can serve as bridges to their communities, often identified through initial digital conversations.</dd>
+          <dd>{t('definition_persons_of_peace')}</dd>
           
           <dt>Heavenly Economy</dt>
-          <dd>A principle that challenges the broken world's teaching that "the more you get, the more you should keep." Instead, reflecting God's generous nature by offering free training, hands-on coaching, and open-source tools.</dd>
+          <dd>{t('definition_heavenly_economy')}</dd>
           
           <dt>Unreached Peoples</dt>
-          <dd>People groups where the name of Jesus has never been proclaimed or where there is no indigenous community of believers with adequate numbers and resources to evangelize their own people.</dd>
+          <dd>{t('definition_unreached_peoples')}</dd>
         </dl>
       </div>
     </footer>

@@ -207,8 +207,8 @@ export default function StrategyCourseDetailPage() {
         }}
         breadcrumbs={{
           items: [
-            { name: 'Home', url: siteUrl },
-            { name: 'Strategy Courses', url: `${siteUrl}/strategy-courses` },
+            { name: t('breadcrumb_home'), url: siteUrl },
+            { name: t('nav_strategy_courses'), url: `${siteUrl}/strategy-courses` },
             { name: courseTitle, url: courseUrl },
           ],
         }}

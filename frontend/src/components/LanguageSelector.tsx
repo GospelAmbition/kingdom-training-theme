@@ -13,7 +13,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 export default function LanguageSelector() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, tWithReplace } = useTranslation();
   const [languages, setLanguages] = useState<Language[]>([]);
   const [defaultLang, setDefaultLang] = useState<string | null>(null);
   const [currentLang, setCurrentLang] = useState<string | null>(null);
@@ -81,7 +81,7 @@ export default function LanguageSelector() {
         <button
           disabled
           className="flex items-center gap-2 px-3 py-2 text-gray-400 cursor-not-allowed border border-transparent rounded-lg"
-          aria-label="Loading languages"
+          aria-label={t('ui_loading_languages')}
           type="button"
         >
           <Globe className="w-5 h-5 animate-pulse flex-shrink-0" />
@@ -99,8 +99,8 @@ export default function LanguageSelector() {
         <button
           disabled
           className="flex items-center gap-2 px-3 py-2 text-gray-400 cursor-not-allowed border border-gray-200 rounded-lg bg-gray-50"
-          aria-label="No languages available"
-          title="No languages configured in Polylang. Check console for details."
+          aria-label={t('ui_no_languages_available')}
+          title={t('ui_no_languages_title')}
           type="button"
         >
           <Globe className="w-5 h-5 flex-shrink-0" />
@@ -119,8 +119,8 @@ export default function LanguageSelector() {
         <button
           disabled
           className="flex items-center gap-2 px-3 py-2 text-gray-500 cursor-default border border-gray-200 rounded-lg bg-gray-50"
-          aria-label={`Current language: ${singleLang.name}`}
-          title={`Only one language configured: ${singleLang.name}. Add more languages in Polylang settings.`}
+          aria-label={tWithReplace('ui_current_language', { name: singleLang.name })}
+          title={tWithReplace('ui_single_language_title', { name: singleLang.name })}
           type="button"
         >
           <Globe className="w-5 h-5 flex-shrink-0" />
@@ -143,7 +143,7 @@ export default function LanguageSelector() {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-primary-500 transition-colors rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200"
-          aria-label="Select language"
+          aria-label={t('ui_select_language_aria')}
           aria-expanded={isOpen}
           type="button"
         >
@@ -208,7 +208,7 @@ export default function LanguageSelector() {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-primary-500 transition-colors"
-          aria-label="Select language"
+          aria-label={t('ui_select_language_aria')}
           aria-expanded={isOpen}
           type="button"
         >

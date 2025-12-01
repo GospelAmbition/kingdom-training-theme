@@ -346,7 +346,7 @@ export default function NewsletterPage() {
     <>
       <SEO
         title={t('page_newsletter')}
-        description="Subscribe to Kingdom.Training newsletter and stay connected with the latest training resources, articles, and updates on Media to Disciple Making Movements. Get practical insights delivered to your inbox."
+        description={t('seo_newsletter_description')}
         keywords="kingdom training newsletter, M2DMM updates, disciple making newsletter, subscribe, training resources, ministry updates"
         url="/newsletter"
         noindex={true}

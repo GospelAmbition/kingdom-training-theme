@@ -216,6 +216,59 @@ export interface Translations {
   form_username_email_placeholder: string;
   form_password: string;
   form_password_placeholder: string;
+
+  // SEO Meta Tags
+  seo_home_description: string;
+  seo_articles_description: string;
+  seo_tools_description: string;
+  seo_login_description: string;
+  seo_newsletter_description: string;
+
+  // Video/Media
+  video_kingdom_training_title: string;
+
+  // KeyInfoSection Terms & Definitions
+  content_m2dmm_term: string;
+  content_m2dmm_definition: string;
+  content_digital_disciple_making_term: string;
+  content_digital_disciple_making_definition: string;
+  content_mvp_course_term: string;
+  content_mvp_course_definition: string;
+  content_ai_discipleship_term: string;
+  content_ai_discipleship_definition: string;
+  content_heavenly_economy_term: string;
+  content_heavenly_economy_definition: string;
+  content_kingdom_training_for_term: string;
+  content_kingdom_training_for_definition: string;
+
+  // FAQ Structured Data
+  faq_m2dmm_question: string;
+  faq_m2dmm_answer: string;
+  faq_mvp_course_question: string;
+  faq_mvp_course_answer: string;
+  faq_disciple_tools_question: string;
+  faq_disciple_tools_answer: string;
+  faq_heavenly_economy_question: string;
+  faq_heavenly_economy_answer: string;
+  faq_kingdom_training_for_question: string;
+  faq_kingdom_training_for_answer: string;
+
+  // Footer Definitions
+  definition_m2dmm: string;
+  definition_dmm: string;
+  definition_persons_of_peace: string;
+  definition_heavenly_economy: string;
+  definition_unreached_peoples: string;
+
+  // Admin/Developer UI
+  admin_edit_link_title: string;
+  admin_edit_link_aria_label: string;
+  ui_no_languages_available: string;
+  ui_no_languages_title: string;
+  ui_loading_languages: string;
+  ui_select_language_aria: string;
+  ui_current_language: string;
+  ui_single_language_title: string;
 }
 
 // Cache for translations
@@ -438,6 +491,47 @@ function getDefaultTranslations(): Translations {
     form_username_email_placeholder: 'Enter your username or email',
     form_password: 'Password',
     form_password_placeholder: 'Enter your password',
+    seo_home_description: 'Training disciple makers to use media to accelerate Disciple Making Movements. Learn practical strategies that bridge online engagement with face-to-face discipleship. Start your M2DMM strategy course today.',
+    seo_articles_description: 'Practical guidance, best practices, and real-world insights from the Media to Disciple Making Movements community. Learn from practitioners implementing M2DMM strategies around the world.',
+    seo_tools_description: 'Essential tools and resources for Media to Disciple Making Movements work. Discover Disciple.Tools—our free, open-source disciple relationship management system—and other practical resources designed specifically for M2DMM practitioners.',
+    seo_login_description: 'Login to Kingdom.Training to access your account and WordPress admin dashboard.',
+    seo_newsletter_description: 'Subscribe to Kingdom.Training newsletter and stay connected with the latest training resources, articles, and updates on Media to Disciple Making Movements. Get practical insights delivered to your inbox.',
+    video_kingdom_training_title: 'Kingdom Training Video',
+    content_m2dmm_term: 'What is Media to Disciple Making Movements (M2DMM)?',
+    content_m2dmm_definition: 'Media to Disciple Making Movements (M2DMM) is a strategic approach that uses targeted media content to identify spiritual seekers online and connect them with face-to-face disciple-makers. The process involves three stages: (1) Media Content - targeted content reaches entire people groups through platforms like Facebook and Google Ads, (2) Digital Filtering - trained responders dialogue with seekers online, identifying persons of peace ready for face-to-face engagement, (3) Face-to-Face Discipleship - multipliers meet seekers in person, guiding them through discovery, obedience, and sharing in reproducing communities.',
+    content_digital_disciple_making_term: 'What is digital disciple making?',
+    content_digital_disciple_making_definition: 'Digital disciple making is the strategic use of all digital means—including social media, online advertising, AI tools, content creation, and digital communication platforms—to find seekers and bring them into relationship with Christ and his church in person. The ambition is to leverage every available digital tool and technique to identify spiritual seekers, engage them meaningfully online, and ultimately connect them with face-to-face discipleship communities where they can grow in their relationship with Jesus and participate in multiplying movements.',
+    content_mvp_course_term: 'What is the MVP Strategy Course?',
+    content_mvp_course_definition: 'The MVP (Minimum Viable Product) Strategy Course is a 10-step program that guides you through the core elements needed to craft a Media to Disciple Making Movements strategy for any context. The course helps you develop your complete M2DMM strategy and can be completed in 6-7 hours. It covers topics including media content creation, digital filtering strategies, face-to-face discipleship methods, and movement multiplication principles.',
+    content_ai_discipleship_term: 'What is AI for discipleship?',
+    content_ai_discipleship_definition: 'AI for discipleship empowers small teams to have a big impact by leveraging artificial intelligence tools and techniques. Kingdom.Training is bringing new techniques to accelerate small teams to use AI effectively in disciple making. These innovative approaches help teams scale their efforts, automate routine tasks, personalize engagement, and multiply their reach—enabling small groups to accomplish what previously required much larger teams.',
+    content_heavenly_economy_term: 'What is the Heavenly Economy?',
+    content_heavenly_economy_definition: 'The Heavenly Economy is a principle that challenges the broken world\'s teaching that "the more you get, the more you should keep." Instead, reflecting God\'s generous nature by offering free training, hands-on coaching, and open-source tools. This approach enables more people to access resources for disciple making, especially in unreached and least-reached areas.',
+    content_kingdom_training_for_term: 'Who is Kingdom.Training for?',
+    content_kingdom_training_for_definition: 'Kingdom.Training is for disciple makers, church planters, missionaries, and ministry leaders who want to use media strategically to accelerate Disciple Making Movements. We particularly focus on equipping those working with unreached and least-reached peoples - people groups where the name of Jesus has never been proclaimed or where there is no indigenous community of believers with adequate numbers and resources to evangelize their own people.',
+    faq_m2dmm_question: 'What is Media to Disciple Making Movements (M2DMM)?',
+    faq_m2dmm_answer: 'Media to Disciple Making Movements (M2DMM) is a strategic approach that uses targeted media content to identify spiritual seekers online and connect them with face-to-face disciple-makers. It functions like a funnel: introducing masses of people through targeted media content, filtering out disinterested individuals through digital conversations, and ultimately connecting genuine seekers with face-to-face disciplers who help them discover, obey, and share all that Jesus taught.',
+    faq_mvp_course_question: 'What is the MVP Strategy Course?',
+    faq_mvp_course_answer: 'The MVP (Minimum Viable Product) Strategy Course is our flagship 10-step program that guides you through the core elements needed to craft a Media to Disciple Making Movements strategy for any context. The course helps you develop your complete M2DMM strategy and can be completed in 6-7 hours.',
+    faq_disciple_tools_question: 'What is Disciple.Tools?',
+    faq_disciple_tools_answer: 'Disciple.Tools is our free, open-source disciple relationship management system designed specifically for M2DMM practitioners. It helps track and manage disciple-making relationships and movements.',
+    faq_heavenly_economy_question: 'What is the Heavenly Economy?',
+    faq_heavenly_economy_answer: 'The Heavenly Economy is a principle that challenges the broken world\'s teaching that "the more you get, the more you should keep." Instead, we reflect God\'s generous nature by offering free training, hands-on coaching, and open-source tools like Disciple.Tools.',
+    faq_kingdom_training_for_question: 'Who is Kingdom.Training for?',
+    faq_kingdom_training_for_answer: 'Kingdom.Training is for disciple makers, church planters, missionaries, and ministry leaders who want to use media strategically to accelerate Disciple Making Movements. We particularly focus on equipping those working with unreached and least-reached peoples.',
+    definition_m2dmm: 'A strategic approach that uses targeted media content to identify spiritual seekers online and connect them with face-to-face disciple-makers. The process involves three stages: 1) Media Content - targeted content reaches entire people groups through platforms like Facebook and Google Ads, 2) Digital Filtering - trained responders dialogue with seekers online, identifying persons of peace ready for face-to-face engagement, 3) Face-to-Face Discipleship - multipliers meet seekers in person, guiding them through discovery, obedience, and sharing in reproducing communities.',
+    definition_dmm: 'Reproducing communities of disciples who discover, obey, and share all that Jesus taught, resulting in exponential multiplication of disciples and churches.',
+    definition_persons_of_peace: 'Individuals who are open to the gospel message and can serve as bridges to their communities, often identified through initial digital conversations.',
+    definition_heavenly_economy: 'A principle that challenges the broken world\'s teaching that "the more you get, the more you should keep." Instead, reflecting God\'s generous nature by offering free training, hands-on coaching, and open-source tools.',
+    definition_unreached_peoples: 'People groups where the name of Jesus has never been proclaimed or where there is no indigenous community of believers with adequate numbers and resources to evangelize their own people.',
+    admin_edit_link_title: 'Edit in WordPress Admin',
+    admin_edit_link_aria_label: 'Edit in WordPress Admin',
+    ui_no_languages_available: 'No languages available',
+    ui_no_languages_title: 'No languages configured in Polylang. Check console for details.',
+    ui_loading_languages: 'Loading languages',
+    ui_select_language_aria: 'Select language',
+    ui_current_language: 'Current language: {name}',
+    ui_single_language_title: 'Only one language configured: {name}. Add more languages in Polylang settings.',
   };
 }
 

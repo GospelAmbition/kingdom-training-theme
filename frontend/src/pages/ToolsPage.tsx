@@ -90,13 +90,13 @@ export default function ToolsPage() {
     <>
       <SEO
         title={t('page_tools')}
-        description="Essential tools and resources for Media to Disciple Making Movements work. Discover Disciple.Tools—our free, open-source disciple relationship management system—and other practical resources designed specifically for M2DMM practitioners."
+        description={t('seo_tools_description')}
         keywords="M2DMM tools, Disciple.Tools, disciple making tools, church planting tools, digital ministry tools, CRM for discipleship, open source tools, kingdom training tools, ministry resources"
         url="/tools"
       />
       <PageHeader
         title={t('page_tools')}
-        description="Essential tools and resources for Media to Disciple Making Movements work. Discover Disciple.Tools—our free, open-source disciple relationship management system—and other practical resources designed specifically for M2DMM practitioners."
+        description={t('seo_tools_description')}
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
         backgroundComponent={<LLMBackground bottomOffset={-25} />}
       />
