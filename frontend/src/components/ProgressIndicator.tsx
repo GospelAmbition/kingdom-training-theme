@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { getProgressPercentage, getCompletedCount } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ProgressIndicatorProps {
   stepSlugs: string[];
@@ -12,6 +13,7 @@ export default function ProgressIndicator({
   totalSteps,
   className = '' 
 }: ProgressIndicatorProps) {
+  const { t, tWithReplace } = useTranslation();
   // State to force re-render when localStorage changes
   const [updateTrigger, setUpdateTrigger] = useState(0);
 
@@ -44,20 +46,20 @@ export default function ProgressIndicator({
 
   const getProgressMessage = () => {
     if (completedCount === 0) {
-      return 'Start with Step 1 to begin your M2DMM strategy development journey.';
+      return t('course_progress_start_message');
     } else if (completedCount === total) {
-      return 'Congratulations! You\'ve completed all steps in the strategy course.';
+      return t('course_progress_complete_message');
     } else {
-      return `Keep going! You're making great progress on your M2DMM strategy.`;
+      return t('course_progress_keep_going');
     }
   };
 
   return (
     <div className={`p-6 bg-background-50 rounded-lg border border-gray-200 ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Your Progress</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('course_progress_your_progress')}</h3>
         <span className="text-sm text-gray-600">
-          {completedCount} of {total} steps completed
+          {tWithReplace('course_progress_steps_completed', { completed: completedCount, total })}
         </span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-3">

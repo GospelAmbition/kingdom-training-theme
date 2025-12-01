@@ -1426,6 +1426,10 @@ function gaal_register_ui_strings() {
     pll_register_string('footer_subscribe', 'Subscribe to Newsletter', 'Frontend UI');
     pll_register_string('footer_privacy_policy', 'Privacy Policy', 'Frontend UI');
     pll_register_string('footer_all_rights', 'All rights reserved.', 'Frontend UI');
+    pll_register_string('footer_mission_statement', 'Training disciple makers to use media to accelerate Disciple Making Movements. Equipping practitioners with practical strategies that bridge online engagement with face-to-face discipleship.', 'Frontend UI');
+    pll_register_string('footer_scripture_quote', 'Of the sons of Issachar, men who understood the times, with knowledge of what Israel should do.', 'Frontend UI');
+    pll_register_string('footer_scripture_citation', '— 1 Chronicles 12:32', 'Frontend UI');
+    pll_register_string('footer_technology_paragraph', 'We wonder what the Church could accomplish with technology God has given to this generation for the first time in history.', 'Frontend UI');
 
     // Newsletter Strings
     pll_register_string('newsletter_subscribe', 'Subscribe', 'Frontend UI');
@@ -1538,6 +1542,10 @@ function gaal_register_translations_api() {
                 'footer_subscribe' => pll_translate_string('Subscribe to Newsletter', $lang),
                 'footer_privacy_policy' => pll_translate_string('Privacy Policy', $lang),
                 'footer_all_rights' => pll_translate_string('All rights reserved.', $lang),
+                'footer_mission_statement' => pll_translate_string('Training disciple makers to use media to accelerate Disciple Making Movements. Equipping practitioners with practical strategies that bridge online engagement with face-to-face discipleship.', $lang),
+                'footer_scripture_quote' => pll_translate_string('Of the sons of Issachar, men who understood the times, with knowledge of what Israel should do.', $lang),
+                'footer_scripture_citation' => pll_translate_string('— 1 Chronicles 12:32', $lang),
+                'footer_technology_paragraph' => pll_translate_string('We wonder what the Church could accomplish with technology God has given to this generation for the first time in history.', $lang),
 
                 // Newsletter
                 'newsletter_subscribe' => pll_translate_string('Subscribe', $lang),

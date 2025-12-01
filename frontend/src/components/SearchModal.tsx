@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Search, Loader2 } from 'lucide-react';
 import { searchStrategyCoursesAndTools, SearchResult } from '@/lib/wordpress';
 import { stripHtml, truncate } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface SearchModalProps {
 }
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -128,14 +130,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search strategy courses and tools..."
+              placeholder={t('search_placeholder_courses_tools')}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
             />
           </div>
           <button
             onClick={onClose}
             className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Close search"
+            aria-label={t('search_close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -146,7 +148,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="w-8 h-8 text-primary-500 animate-spin mb-4" />
-              <p className="text-gray-600">Searching...</p>
+              <p className="text-gray-600">{t('ui_searching')}</p>
             </div>
           ) : hasSearched && query.trim().length >= 2 ? (
             results.length > 0 ? (
@@ -154,7 +156,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 {results.map((result) => {
                   const excerpt = stripHtml(result.excerpt.rendered);
                   const truncatedExcerpt = truncate(excerpt, 100);
-                  const typeLabel = result.resultType === 'strategy-course' ? 'Strategy Course' : 'Tool';
+                  const typeLabel = result.resultType === 'strategy-course' ? t('search_strategy_course') : t('search_tool');
                   const typeColor = result.resultType === 'strategy-course' 
                     ? 'bg-primary-100 text-primary-700' 
                     : 'bg-secondary-100 text-secondary-700';
@@ -192,15 +194,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             ) : (
               <div className="flex flex-col items-center justify-center py-12">
                 <Search className="w-12 h-12 text-gray-300 mb-4" />
-                <p className="text-gray-600 font-medium">No results found</p>
-                <p className="text-sm text-gray-500 mt-1">Try a different search term</p>
+                <p className="text-gray-600 font-medium">{t('search_no_results')}</p>
+                <p className="text-sm text-gray-500 mt-1">{t('search_no_results_try')}</p>
               </div>
             )
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
               <Search className="w-12 h-12 text-gray-300 mb-4" />
-              <p className="text-gray-600">Start typing to search...</p>
-              <p className="text-sm text-gray-500 mt-1">Search strategy courses and tools</p>
+              <p className="text-gray-600">{t('search_start_typing')}</p>
+              <p className="text-sm text-gray-500 mt-1">{t('search_start_typing_desc')}</p>
             </div>
           )}
         </div>

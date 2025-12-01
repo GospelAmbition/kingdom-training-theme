@@ -4,6 +4,7 @@
  */
 
 import { Link } from 'react-router-dom';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface HeroProps {
   title: string;
@@ -19,9 +20,11 @@ export default function Hero({
   title,
   subtitle,
   description,
-  ctaText = "Explore Our Resources",
+  ctaText,
   ctaLink = "/articles"
 }: HeroProps) {
+  const { t } = useTranslation();
+  const defaultCtaText = ctaText || t('hero_cta_explore_resources');
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-700 text-white">
       <GenMapBackground />
@@ -50,13 +53,13 @@ export default function Hero({
               to={ctaLink}
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-base font-semibold rounded-lg text-white bg-transparent hover:bg-white hover:text-secondary-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-200"
             >
-              {ctaText}
+              {defaultCtaText}
             </Link>
             <a
               href="https://ai.kingdom.training/about/"
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-white/30 text-base font-semibold rounded-lg text-white hover:border-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-200"
             >
-              About Us
+              {t('hero_cta_about_us')}
             </a>
           </div>
         </div>

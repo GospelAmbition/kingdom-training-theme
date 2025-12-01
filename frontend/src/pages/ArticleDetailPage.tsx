@@ -84,7 +84,7 @@ export default function ArticleDetailPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">{t('ui_loading')}</p>
         </div>
       </div>
     );
@@ -93,8 +93,8 @@ export default function ArticleDetailPage() {
   if (error || !article) {
     return (
       <div className="container-custom py-16 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Article Not Found</h1>
-        <p className="text-gray-600 mb-8">The article you're looking for doesn't exist.</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('error_article_not_found')}</h1>
+        <p className="text-gray-600 mb-8">{t('error_article_not_found_desc')}</p>
         <Link to={currentLang ? `/${currentLang}/articles` : '/articles'} className="text-primary-500 hover:text-primary-600 font-medium">
           ← {t('ui_back_to')} {t('nav_articles')}
         </Link>
@@ -164,7 +164,7 @@ export default function ArticleDetailPage() {
           <div className="mb-8">
             <div className="flex items-center text-sm text-gray-600 mb-4">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-accent-100 text-accent-800">
-                Article
+                {t('course_article')}
               </span>
             </div>
 
@@ -187,7 +187,7 @@ export default function ArticleDetailPage() {
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  Additional Article Resources
+                  {t('content_additional_article_resources')}
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
                   {t('msg_discover_more')}

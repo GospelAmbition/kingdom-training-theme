@@ -3,8 +3,10 @@ import { login, logout, getCurrentUser, User } from '@/lib/auth';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import NeuralBackground from '@/components/NeuralBackground';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function LoginPage() {
+  const { t, tWithReplace } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ export default function LoginPage() {
         window.location.href = '/wp-admin';
       }, 500);
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || t('error_login_failed'));
     } finally {
       setLoading(false);
     }
@@ -53,7 +55,7 @@ export default function LoginPage() {
       setUser(null);
       setError('');
     } catch (err: any) {
-      setError(err.message || 'Logout failed.');
+      setError(err.message || t('error_logout_failed'));
     }
   };
 
@@ -61,15 +63,15 @@ export default function LoginPage() {
     return (
       <>
         <SEO
-          title="Logged In"
-          description={`Welcome back, ${user.name}!`}
+          title={t('page_logged_in')}
+          description={tWithReplace('page_welcome_back', { name: user.name })}
           url="/login"
           noindex={true}
           nofollow={true}
         />
         <PageHeader
-          title="Logged In"
-          description={`Welcome back, ${user.name}!`}
+          title={t('page_logged_in')}
+          description={tWithReplace('page_welcome_back', { name: user.name })}
           backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
         />
         <div className="container-custom py-16">
@@ -94,13 +96,13 @@ export default function LoginPage() {
                   href="/wp-admin"
                   className="block w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors"
                 >
-                  Go to WordPress Admin
+                  {t('nav_go_to_admin')}
                 </a>
                 <button
                   onClick={handleLogout}
                   className="block w-full px-6 py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-lg transition-colors"
                 >
-                  Log Out
+                  {t('nav_log_out')}
                 </button>
               </div>
             </div>
@@ -113,14 +115,14 @@ export default function LoginPage() {
   return (
     <>
       <SEO
-        title="Login"
+        title={t('page_login')}
         description="Login to Kingdom.Training to access your account and WordPress admin dashboard."
         url="/login"
         noindex={true}
         nofollow={true}
       />
       <PageHeader
-        title="Login"
+        title={t('page_login')}
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
         backgroundComponent={<NeuralBackground />}
       />
@@ -136,7 +138,7 @@ export default function LoginPage() {
 
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                  Username or Email
+                  {t('form_username_email')}
                 </label>
                 <input
                   id="username"
@@ -145,13 +147,13 @@ export default function LoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter your username or email"
+                  placeholder={t('form_username_email_placeholder')}
                 />
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
+                  {t('form_password')}
                 </label>
                 <input
                   id="password"
@@ -160,7 +162,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter your password"
+                  placeholder={t('form_password_placeholder')}
                 />
               </div>
 
@@ -169,7 +171,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
               >
-                {loading ? 'Logging in...' : 'Log In'}
+                {loading ? t('ui_logging_in') : t('nav_log_in')}
               </button>
             </form>
 
@@ -178,7 +180,7 @@ export default function LoginPage() {
                 href="/wp-login.php?action=lostpassword"
                 className="text-sm text-primary-500 hover:text-primary-600"
               >
-                Forgot your password?
+                {t('nav_forgot_password')}
               </a>
             </div>
           </div>

@@ -71,13 +71,11 @@ export default function Footer() {
           <div>
             <div className="mb-4">
               <h2 className="text-white text-2xl font-bold uppercase tracking-wide">
-                Kingdom Training
+                {t('footer_kingdom_training')}
               </h2>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Training disciple makers to use media to accelerate Disciple Making Movements. 
-              Equipping practitioners with practical strategies that bridge online engagement 
-              with face-to-face discipleship.
+              {t('footer_mission_statement')}
             </p>
           </div>
 
@@ -117,13 +115,11 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">{t('footer_our_vision')}</h3>
             <blockquote className="text-sm text-secondary-200 italic leading-relaxed border-l-2 border-primary-500 pl-4">
-              &ldquo;Of the sons of Issachar, men who understood the times, with knowledge of what 
-              Israel should do.&rdquo;
-              <footer className="text-xs text-gray-500 mt-2">— 1 Chronicles 12:32</footer>
+              &ldquo;{t('footer_scripture_quote')}&rdquo;
+              <footer className="text-xs text-gray-500 mt-2">{t('footer_scripture_citation')}</footer>
             </blockquote>
             <p className="text-sm text-gray-400 leading-relaxed mt-4">
-              We wonder what the Church could accomplish with technology God has given to this 
-              generation for the first time in history.
+              {t('footer_technology_paragraph')}
             </p>
           </div>
         </div>
@@ -160,7 +156,7 @@ export default function Footer() {
       
       {/* Key Information Section for LLMs - Hidden visually but accessible to crawlers */}
       <div className="sr-only" aria-hidden="true">
-        <h2>Key Definitions</h2>
+        <h2>{t('footer_key_definitions')}</h2>
         <dl>
           <dt>Media to Disciple Making Movements (M2DMM)</dt>
           <dd>A strategic approach that uses targeted media content to identify spiritual seekers online and connect them with face-to-face disciple-makers. The process involves three stages: 1) Media Content - targeted content reaches entire people groups through platforms like Facebook and Google Ads, 2) Digital Filtering - trained responders dialogue with seekers online, identifying persons of peace ready for face-to-face engagement, 3) Face-to-Face Discipleship - multipliers meet seekers in person, guiding them through discovery, obedience, and sharing in reproducing communities.</dd>

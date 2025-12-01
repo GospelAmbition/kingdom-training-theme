@@ -9,10 +9,12 @@ import StructuredData from '@/components/StructuredData';
 import AdminEditLink from '@/components/AdminEditLink';
 import FeaturedImage from '@/components/FeaturedImage';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function StrategyCourseDetailPage() {
   const { slug, lang } = useParams<{ slug: string; lang?: string }>();
   const location = useLocation();
+  const { t, tWithReplace } = useTranslation();
   const [course, setCourse] = useState<WordPressPost | null>(null);
   const [courseSteps, setCourseSteps] = useState<WordPressPost[]>([]);
   const [additionalResources, setAdditionalResources] = useState<WordPressPost[]>([]);
@@ -40,6 +42,9 @@ export default function StrategyCourseDetailPage() {
         const steps = await getOrderedCourseSteps(currentLang, defaultLang);
         setCourseSteps(steps);
         
+        // Determine target language: use provided lang, or defaultLang, or null for default
+        const targetLang = currentLang || defaultLang || null;
+        
         // Fetch additional resources (courses not in ordered steps, excluding current course)
         const allCourses = await getStrategyCourses({ 
           per_page: 100, 
@@ -51,9 +56,23 @@ export default function StrategyCourseDetailPage() {
         // Get slugs of courses with steps to filter them out
         const stepSlugs = steps.map(step => step.slug);
         
-        // Filter out courses with steps and current course to get additional resources
+        // Filter out courses with steps and current course, and filter by language
         const additional = allCourses
-          .filter(course => !stepSlugs.includes(course.slug) && course.slug !== slug)
+          .filter(course => {
+            // Exclude courses with steps and current course
+            if (stepSlugs.includes(course.slug) || course.slug === slug) {
+              return false;
+            }
+            
+            // Filter by language to ensure only matching language is shown
+            if (targetLang === null) {
+              // Default language: include posts with null/undefined language
+              return course.language === null || course.language === undefined;
+            } else {
+              // Specific language: only include posts matching that language
+              return course.language === targetLang;
+            }
+          })
           .slice(0, 9); // Limit to 9 items for 3 rows
         
         setAdditionalResources(additional);
@@ -123,7 +142,7 @@ export default function StrategyCourseDetailPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">{t('ui_loading')}</p>
         </div>
       </div>
     );
@@ -132,10 +151,10 @@ export default function StrategyCourseDetailPage() {
   if (error || !course) {
     return (
       <div className="container-custom py-16 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Course Not Found</h1>
-        <p className="text-gray-600 mb-8">The course you're looking for doesn't exist.</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('error_course_not_found')}</h1>
+        <p className="text-gray-600 mb-8">{t('error_course_not_found_desc')}</p>
         <Link to={buildLanguageUrl('/strategy-courses', currentLang || null, defaultLang)} className="text-primary-500 hover:text-primary-600 font-medium">
-          ← Back to Strategy Courses
+          {t('nav_back_to_strategy_courses')}
         </Link>
       </div>
     );
@@ -207,7 +226,7 @@ export default function StrategyCourseDetailPage() {
           <div className="mb-8">
             <div className="mb-4">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                Strategy Course
+                {t('course_strategy_course')}
               </span>
             </div>
 
@@ -261,8 +280,8 @@ export default function StrategyCourseDetailPage() {
                   >
                     <ChevronLeft className="w-5 h-5 mr-2" />
                     <div className="text-left">
-                      <div className="text-xs text-gray-500 uppercase tracking-wide">Previous</div>
-                      <div className="text-sm font-semibold">Step {previousStep.steps || courseSteps.indexOf(previousStep) + 1}</div>
+                      <div className="text-xs text-gray-500 uppercase tracking-wide">{t('nav_previous')}</div>
+                      <div className="text-sm font-semibold">{tWithReplace('nav_step', { number: previousStep.steps || courseSteps.indexOf(previousStep) + 1 })}</div>
                     </div>
                   </Link>
                 ) : (
@@ -276,8 +295,8 @@ export default function StrategyCourseDetailPage() {
                     className="inline-flex items-center px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors duration-200"
                   >
                     <div className="text-right mr-2">
-                      <div className="text-xs text-white/80 uppercase tracking-wide">Next</div>
-                      <div className="text-sm font-semibold">Step {nextStep.steps || courseSteps.indexOf(nextStep) + 1}</div>
+                      <div className="text-xs text-white/80 uppercase tracking-wide">{t('nav_next')}</div>
+                      <div className="text-sm font-semibold">{tWithReplace('nav_step', { number: nextStep.steps || courseSteps.indexOf(nextStep) + 1 })}</div>
                     </div>
                     <ChevronRight className="w-5 h-5" />
                   </Link>
@@ -286,7 +305,7 @@ export default function StrategyCourseDetailPage() {
                     to={buildLanguageUrl('/strategy-courses', currentLang || null, defaultLang)}
                     className="inline-flex items-center px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors duration-200"
                   >
-                    <span>Back to Course Overview</span>
+                    <span>{t('nav_back_to_course_overview')}</span>
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </Link>
                 )}
@@ -303,10 +322,10 @@ export default function StrategyCourseDetailPage() {
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  Additional Course Resources
+                  {t('content_additional_resources')}
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
-                  Discover supplementary materials and resources to deepen your understanding and enhance your M2DMM strategy development.
+                  {t('content_supplementary_materials')}
                 </p>
               </div>
 

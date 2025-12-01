@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowRight } from 'lucide-react';
 import { renderShortcode } from '@/lib/wordpress';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface NewsletterCTAProps {
   variant?: 'inline' | 'banner' | 'card';
@@ -22,6 +23,7 @@ export default function NewsletterCTA({
   whiteBackground = false,
   noWrapper = false
 }: NewsletterCTAProps) {
+  const { t } = useTranslation();
   const [shortcodeHtml, setShortcodeHtml] = useState<string>('');
   const [shortcodeLoading, setShortcodeLoading] = useState(true);
   const formContainerRef = useRef<HTMLDivElement>(null);
@@ -259,7 +261,7 @@ export default function NewsletterCTA({
         if (!confirmSubscribe) {
           const errorSpan = form.querySelector('.dt-form-error');
           if (errorSpan) {
-            errorSpan.textContent = 'You must confirm that you want to subscribe.';
+            errorSpan.textContent = t('newsletter_confirm_subscribe');
             (errorSpan as HTMLElement).style.display = 'block';
           }
           return;
@@ -271,7 +273,7 @@ export default function NewsletterCTA({
 
         if (!nonce) {
           console.error('WordPress nonce not found');
-          throw new Error('Security token not found. Please refresh the page.');
+          throw new Error(t('error_security_token_not_found'));
         }
 
         // Check if Turnstile widget exists and is visible
@@ -288,9 +290,9 @@ export default function NewsletterCTA({
               (turnstileWidget as HTMLElement).offsetWidth > 0;
             
             if (!widgetVisible) {
-              errorSpan.textContent = 'Security verification widget is loading. Please wait a moment and try again.';
+              errorSpan.textContent = t('newsletter_security_loading');
             } else {
-              errorSpan.textContent = 'Please complete the security verification above.';
+              errorSpan.textContent = t('newsletter_security_complete');
             }
             (errorSpan as HTMLElement).style.display = 'block';
             
@@ -316,7 +318,7 @@ export default function NewsletterCTA({
         // Disable button during submission
         submitButton.setAttribute('disabled', 'disabled');
         const originalText = submitButton.textContent;
-        submitButton.textContent = 'Submitting...';
+        submitButton.textContent = t('ui_submitting');
 
         // Hide any previous errors
         const errorSpan = form.querySelector('.dt-form-error');
@@ -343,13 +345,13 @@ export default function NewsletterCTA({
         const data = await response.json();
 
         if (response.ok && data !== false) {
-          submitButton.textContent = 'Subscribed!';
+          submitButton.textContent = t('newsletter_subscribed');
           submitButton.classList.add('bg-green-500');
           form.reset();
           // Show success message
           const successDiv = form.querySelector('.dt-form-success');
           if (successDiv) {
-            successDiv.textContent = 'Please check your email to confirm your subscription.';
+            successDiv.textContent = t('newsletter_check_email');
             (successDiv as HTMLElement).style.display = 'block';
           }
           // Reset button after 3 seconds
@@ -360,20 +362,20 @@ export default function NewsletterCTA({
           }, 3000);
         } else {
           submitButton.removeAttribute('disabled');
-          submitButton.textContent = originalText || 'Try Again';
+          submitButton.textContent = originalText || t('newsletter_try_again');
           // Show error message
           if (errorSpan) {
-            errorSpan.textContent = data?.message || 'There was an error subscribing you. Please try again.';
+            errorSpan.textContent = data?.message || t('error_subscribe_failed');
             (errorSpan as HTMLElement).style.display = 'block';
           }
         }
       } catch (error) {
         console.error('Error submitting form:', error);
         submitButton.removeAttribute('disabled');
-        submitButton.textContent = 'Try Again';
+        submitButton.textContent = t('newsletter_try_again');
         const errorSpan = form.querySelector('.dt-form-error');
         if (errorSpan) {
-          errorSpan.textContent = 'There was an error subscribing you. Please try again.';
+          errorSpan.textContent = t('error_subscribe_failed');
           (errorSpan as HTMLElement).style.display = 'block';
         }
       }
@@ -387,8 +389,8 @@ export default function NewsletterCTA({
     };
   }, [shortcodeHtml, shortcodeLoading, showEmailInput]);
 
-  const defaultTitle = title || 'Stay Connected';
-  const defaultDescription = description || 'Get the latest training resources and insights delivered to your inbox.';
+  const defaultTitle = title || t('newsletter_stay_connected');
+  const defaultDescription = description || t('newsletter_default_description');
 
   if (variant === 'banner') {
     const bgClasses = whiteBackground 
@@ -425,7 +427,7 @@ export default function NewsletterCTA({
                     : 'bg-accent-600 hover:bg-accent-500 text-secondary-900'
                 }`}
               >
-                Subscribe to Newsletter
+                {t('nav_subscribe_newsletter')}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             )}
@@ -467,7 +469,7 @@ export default function NewsletterCTA({
                 to="/newsletter"
                 className="inline-flex items-center text-primary-500 hover:text-primary-600 font-semibold"
               >
-                Subscribe now
+                {t('nav_subscribe_now')}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             )}
@@ -499,7 +501,7 @@ export default function NewsletterCTA({
           to="/newsletter"
           className="inline-flex items-center px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors whitespace-nowrap"
         >
-          Subscribe
+          {t('newsletter_subscribe')}
           <ArrowRight className="w-4 h-4 ml-2" />
         </Link>
       )}

@@ -136,7 +136,7 @@ export default function Header() {
             <button
               onClick={() => setIsSearchOpen(true)}
               className="text-gray-700 hover:text-primary-500 transition-colors"
-              aria-label="Search"
+              aria-label={t('nav_search')}
             >
               <Search className="w-6 h-6" />
             </button>
@@ -144,7 +144,7 @@ export default function Header() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-700 hover:text-primary-500 transition-colors"
-              aria-label="Toggle menu"
+              aria-label={t('ui_toggle_menu')}
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (

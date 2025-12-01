@@ -4,8 +4,10 @@ import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { renderShortcode } from '@/lib/wordpress';
 import { CheckCircle, Mail, AlertCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function NewsletterPage() {
+  const { t } = useTranslation();
   const [shortcodeHtml, setShortcodeHtml] = useState<string>('');
   const [shortcodeLoading, setShortcodeLoading] = useState(true);
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -246,7 +248,7 @@ export default function NewsletterPage() {
         // Validate checkbox
         if (!confirmSubscribe) {
           setFormStatus('error');
-          setFormMessage('You must confirm that you want to subscribe.');
+          setFormMessage(t('newsletter_confirm_subscribe'));
           return;
         }
 
@@ -257,7 +259,7 @@ export default function NewsletterPage() {
         if (!nonce) {
           console.error('WordPress nonce not found');
           setFormStatus('error');
-          setFormMessage('Security token not found. Please refresh the page.');
+          setFormMessage(t('error_security_token_not_found'));
           return;
         }
 
@@ -274,10 +276,10 @@ export default function NewsletterPage() {
           
           if (!widgetVisible) {
             setFormStatus('error');
-            setFormMessage('Security verification widget is loading. Please wait a moment and try again.');
+            setFormMessage(t('newsletter_security_loading'));
           } else {
             setFormStatus('error');
-            setFormMessage('Please complete the security verification above.');
+            setFormMessage(t('newsletter_security_complete'));
           }
           
           // Scroll to widget if it exists
@@ -318,17 +320,17 @@ export default function NewsletterPage() {
 
         if (response.ok && data !== false) {
           setFormStatus('success');
-          setFormMessage('Thank you for subscribing! Please check your email to confirm your subscription.');
+          setFormMessage(t('newsletter_success_message'));
           // Reset form
           form.reset();
         } else {
           setFormStatus('error');
-          setFormMessage(data?.message || 'Something went wrong. Please try again.');
+          setFormMessage(data?.message || t('error_subscribe_generic'));
         }
       } catch (error) {
         console.error('Error submitting form:', error);
         setFormStatus('error');
-        setFormMessage('Failed to submit. Please try again.');
+        setFormMessage(t('error_submit_failed'));
       }
     };
 
@@ -343,15 +345,15 @@ export default function NewsletterPage() {
   return (
     <>
       <SEO
-        title="Newsletter"
+        title={t('page_newsletter')}
         description="Subscribe to Kingdom.Training newsletter and stay connected with the latest training resources, articles, and updates on Media to Disciple Making Movements. Get practical insights delivered to your inbox."
         keywords="kingdom training newsletter, M2DMM updates, disciple making newsletter, subscribe, training resources, ministry updates"
         url="/newsletter"
         noindex={true}
       />
       <PageHeader 
-        title="Newsletter"
-        description="Stay connected with the latest training resources, articles, and updates on Media to Disciple Making Movements."
+        title={t('page_newsletter')}
+        description={t('page_newsletter_description')}
         backgroundClass="bg-gradient-to-r from-primary-800 to-primary-600"
       />
 
@@ -364,11 +366,10 @@ export default function NewsletterPage() {
                   <Mail className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Subscribe to Our Newsletter
+                  {t('newsletter_subscribe_title')}
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Get the latest training resources, articles, and insights delivered directly to your inbox. 
-                  Join our community of disciple makers committed to using media strategically for Kingdom impact.
+                  {t('newsletter_subscribe_description')}
                 </p>
               </div>
 
@@ -392,7 +393,7 @@ export default function NewsletterPage() {
                     <div className="mb-6 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-blue-800">Submitting your subscription...</p>
+                        <p className="text-blue-800">{t('ui_submitting_subscription')}</p>
                       </div>
                     </div>
                   )}
@@ -418,28 +419,28 @@ export default function NewsletterPage() {
               ) : null}
 
               <div className="mt-8 pt-8 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">What to Expect</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('newsletter_what_to_expect')}</h3>
                 <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                    <span>Latest articles and insights on Media to Disciple Making Movements</span>
+                    <span>{t('newsletter_expect_articles')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                    <span>Practical tools and strategies for disciple makers</span>
+                    <span>{t('newsletter_expect_tools')}</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                    <span>Stories from the field and testimonies of impact</span>
+                    <span>{t('newsletter_expect_stories')}</span>
                   </li>
                 </ul>
               </div>
 
               <div className="mt-6 text-sm text-gray-600 text-center">
                 <p>
-                  We respect your privacy. Unsubscribe at any time. 
+                  {t('newsletter_privacy_note')} 
                   <Link to="/privacy" className="text-primary-500 hover:text-primary-600 ml-1">
-                    Learn more about our privacy policy
+                    {t('newsletter_privacy_link')}
                   </Link>
                 </p>
               </div>

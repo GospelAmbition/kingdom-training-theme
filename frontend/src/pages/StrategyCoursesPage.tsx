@@ -8,6 +8,7 @@ import SEO from '@/components/SEO';
 import { ChevronRight } from 'lucide-react';
 import { getStrategyCourses, getOrderedCourseSteps, WordPressPost, getDefaultLanguage } from '@/lib/wordpress';
 import { getThemeAssetUrl, parseLanguageFromPath, buildLanguageUrl } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface CourseStep {
   number: number;
@@ -18,6 +19,7 @@ export interface CourseStep {
 export default function StrategyCoursesPage() {
   const { lang } = useParams<{ lang?: string }>();
   const location = useLocation();
+  const { t, tWithReplace } = useTranslation();
   const [courseSteps, setCourseSteps] = useState<WordPressPost[]>([]);
   const [additionalResources, setAdditionalResources] = useState<WordPressPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,9 @@ export default function StrategyCoursesPage() {
         const orderedSteps = await getOrderedCourseSteps(currentLang, defaultLang);
         setCourseSteps(orderedSteps);
         
+        // Determine target language: use provided lang, or defaultLang, or null for default
+        const targetLang = currentLang || defaultLang || null;
+        
         // Fetch all courses to find additional resources
         const allCourses = await getStrategyCourses({ 
           per_page: 100, 
@@ -51,10 +56,22 @@ export default function StrategyCoursesPage() {
         // Get slugs of courses with steps to filter them out
         const stepSlugs = orderedSteps.map(step => step.slug);
         
-        // Filter out courses with steps to get additional resources
-        const additional = allCourses.filter(
-          course => !stepSlugs.includes(course.slug)
-        );
+        // Filter out courses with steps and filter by language to get additional resources
+        const additional = allCourses.filter(course => {
+          // Exclude courses with steps
+          if (stepSlugs.includes(course.slug)) {
+            return false;
+          }
+          
+          // Filter by language to ensure only matching language is shown
+          if (targetLang === null) {
+            // Default language: include posts with null/undefined language
+            return course.language === null || course.language === undefined;
+          } else {
+            // Specific language: only include posts matching that language
+            return course.language === targetLang;
+          }
+        });
         
         setAdditionalResources(additional);
       } catch (error) {
@@ -102,14 +119,14 @@ export default function StrategyCoursesPage() {
   return (
     <>
       <SEO
-        title="Strategy Course - The MVP"
-        description="Comprehensive training to craft your Media to Disciple Making Movements strategy. Follow the 10-step program to develop your complete M2DMM strategy. Complete your plan in 6-7 hours."
+        title={t('page_strategy_course_mvp')}
+        description={t('page_strategy_course_description') + ' Complete your plan in 6-7 hours.'}
         keywords="M2DMM strategy course, MVP course, media to movements training, disciple making strategy, online evangelism course, church planting strategy, digital discipleship course, kingdom training course"
         url="/strategy-courses"
       />
       <PageHeader 
-        title="Strategy Course"
-        description="Comprehensive training to craft your Media to Disciple Making Movements strategy. Follow the 10-step program below to develop your complete M2DMM strategy."
+        title={t('page_strategy_course')}
+        description={t('page_strategy_course_description')}
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
         backgroundComponent={<NeuralBackground />}
       />
@@ -134,11 +151,10 @@ export default function StrategyCoursesPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                The MVP: Strategy Course
+                {t('page_strategy_course_mvp')}
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed">
-                Our flagship course guides you through 10 core elements needed to craft a Media to Disciple 
-                Making Movements strategy for any context. Complete your plan step by step.
+                {t('course_flagship_description')} {t('course_complete_plan')}
               </p>
             </div>
 
@@ -146,7 +162,7 @@ export default function StrategyCoursesPage() {
             {loading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-                <p className="mt-4 text-gray-600">Loading course steps...</p>
+                <p className="mt-4 text-gray-600">{t('ui_loading_course_steps')}</p>
               </div>
             ) : courseSteps.length > 0 ? (
               <>
@@ -174,7 +190,7 @@ export default function StrategyCoursesPage() {
                             {step.title.rendered}
                           </h3>
                           <div className="flex items-center text-sm text-primary-500 font-medium mt-2">
-                            <span>Start this step</span>
+                            <span>{t('nav_start_step')}</span>
                             <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                           </div>
                         </div>
@@ -202,7 +218,10 @@ export default function StrategyCoursesPage() {
                       to={buildLanguageUrl(`/strategy-courses/${courseSteps[0].slug}`, currentLang || null, defaultLang)}
                       className="inline-flex items-center justify-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors duration-200 text-lg"
                     >
-                      Start Step {courseSteps[0].steps || 1}: {courseSteps[0].title.rendered}
+                      {tWithReplace('nav_start_step_number', { 
+                        number: courseSteps[0].steps || 1, 
+                        title: courseSteps[0].title.rendered 
+                      })}
                       <ChevronRight className="w-5 h-5 ml-2" />
                     </Link>
                   </div>
@@ -210,7 +229,7 @@ export default function StrategyCoursesPage() {
               </>
             ) : (
               <div className="text-center py-12 bg-background-50 rounded-lg">
-                <p className="text-gray-600">No course steps found. Please add strategy courses with step numbers in WordPress admin.</p>
+                <p className="text-gray-600">{t('course_no_steps_found')}</p>
               </div>
             )}
           </div>
@@ -224,10 +243,10 @@ export default function StrategyCoursesPage() {
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  Additional Course Resources
+                  {t('content_additional_resources')}
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
-                  Discover supplementary materials and resources to deepen your understanding and enhance your M2DMM strategy development.
+                  {t('content_supplementary_materials')}
                 </p>
               </div>
 

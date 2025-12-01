@@ -76,7 +76,7 @@ export default function HomePage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">{t('ui_loading')}</p>
         </div>
       </div>
     );
@@ -101,10 +101,10 @@ export default function HomePage() {
         }}
       />
       <Hero
-        subtitle="Media, Advertising, and AI"
-        title="Innovate → Accelerate → Make Disciples"
+        subtitle={t('hero_subtitle_media_ai')}
+        title={t('hero_title_innovate')}
         description={t('hero_description')}
-        ctaText="Start the MVP Course"
+        ctaText={t('nav_start_mvp')}
         ctaLink={buildLanguageUrl('/strategy-courses', currentLang || null, defaultLang)}
       />
 
@@ -114,7 +114,7 @@ export default function HomePage() {
         <div className="relative z-10">
           <NewsletterCTA
             variant="banner"
-            title="Get the newest insights, techniques, and strategies."
+            title={t('hero_newsletter_title')}
             description={t('home_newsletter_description')}
             showEmailInput={false}
             className="my-0"
@@ -177,7 +177,7 @@ export default function HomePage() {
               to={buildLanguageUrl('/strategy-courses', currentLang || null, defaultLang)}
               className="inline-flex items-center justify-center px-8 py-4 bg-accent-600 hover:bg-accent-500 text-secondary-900 font-semibold rounded-lg transition-colors duration-200 text-lg"
             >
-              Enroll in The MVP Course
+              {t('nav_enroll_mvp')}
             </Link>
           </div>
         </div>
@@ -255,7 +255,7 @@ export default function HomePage() {
             {/* Video Section */}
             <div className="mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
-                What is Digital Disciple Making?
+                {t('content_digital_disciple_making')}
               </h2>
               <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                 <iframe
@@ -270,7 +270,7 @@ export default function HomePage() {
             </div>
 
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              The Heavenly Economy
+              {t('content_heavenly_economy')}
             </h2>
             <p className="text-lg text-primary-100 leading-relaxed mb-6">
               {t('home_heavenly_economy')}
@@ -304,7 +304,7 @@ export default function HomePage() {
 
      {/* Key Information Section for Answer Engine Optimization */}
       <KeyInfoSection
-        title="Key Information About Media to Disciple Making Movements"
+        title={t('content_key_information_m2dmm')}
         items={[
           {
             term: 'What is Media to Disciple Making Movements (M2DMM)?',

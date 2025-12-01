@@ -1,5 +1,6 @@
 import { Category, Tag } from '@/lib/wordpress';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface SidebarProps {
     categories: Category[];
@@ -8,13 +9,14 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ categories, tags, basePath }: SidebarProps) {
+    const { t } = useTranslation();
     return (
         <aside className="space-y-8">
             {/* Categories */}
             {categories.length > 0 && (
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
-                        Categories
+                        {t('content_categories')}
                     </h3>
                     <ul className="space-y-2">
                         {categories.map((category) => (
@@ -38,7 +40,7 @@ export default function Sidebar({ categories, tags, basePath }: SidebarProps) {
             {tags.length > 0 && (
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
-                        Tags
+                        {t('content_tags')}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                         {tags.map((tag) => (

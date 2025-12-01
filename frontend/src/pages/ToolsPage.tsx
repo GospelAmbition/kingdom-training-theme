@@ -7,10 +7,12 @@ import LLMBackground from '@/components/LLMBackground';
 import SEO from '@/components/SEO';
 import { getTools, getToolCategories, getTags, WordPressPost, Category, Tag, getDefaultLanguage } from '@/lib/wordpress';
 import { parseLanguageFromPath } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ToolsPage() {
   const { lang } = useParams<{ lang?: string }>();
   const location = useLocation();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [tools, setTools] = useState<WordPressPost[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -78,7 +80,7 @@ export default function ToolsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">{t('ui_loading')}</p>
         </div>
       </div>
     );
@@ -87,13 +89,13 @@ export default function ToolsPage() {
   return (
     <>
       <SEO
-        title="Tools"
+        title={t('page_tools')}
         description="Essential tools and resources for Media to Disciple Making Movements work. Discover Disciple.Tools—our free, open-source disciple relationship management system—and other practical resources designed specifically for M2DMM practitioners."
         keywords="M2DMM tools, Disciple.Tools, disciple making tools, church planting tools, digital ministry tools, CRM for discipleship, open source tools, kingdom training tools, ministry resources"
         url="/tools"
       />
       <PageHeader
-        title="Tools"
+        title={t('page_tools')}
         description="Essential tools and resources for Media to Disciple Making Movements work. Discover Disciple.Tools—our free, open-source disciple relationship management system—and other practical resources designed specifically for M2DMM practitioners."
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
         backgroundComponent={<LLMBackground bottomOffset={-25} />}
@@ -123,10 +125,10 @@ export default function ToolsPage() {
                 <div className="text-center py-16 bg-gray-50 rounded-lg">
                   <div className="text-6xl mb-4">🛠️</div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    No Tools Found
+                    {t('content_no_tools_found')}
                   </h3>
                   <p className="text-gray-600">
-                    Try adjusting your filters or check back later.
+                    {t('content_no_tools_try')}
                   </p>
                 </div>
               )}

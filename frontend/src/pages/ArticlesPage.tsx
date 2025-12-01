@@ -7,10 +7,12 @@ import IdeasBackground from '@/components/IdeasBackground';
 import SEO from '@/components/SEO';
 import { getArticles, getArticleCategories, getTags, WordPressPost, Category, Tag, getDefaultLanguage } from '@/lib/wordpress';
 import { parseLanguageFromPath } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ArticlesPage() {
   const { lang } = useParams<{ lang?: string }>();
   const location = useLocation();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [articles, setArticles] = useState<WordPressPost[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -78,7 +80,7 @@ export default function ArticlesPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">{t('ui_loading')}</p>
         </div>
       </div>
     );
@@ -87,13 +89,13 @@ export default function ArticlesPage() {
   return (
     <>
       <SEO
-        title="Articles"
+        title={t('page_articles')}
         description="Practical guidance, best practices, and real-world insights from the Media to Disciple Making Movements community. Learn from practitioners implementing M2DMM strategies around the world."
         keywords="M2DMM articles, disciple making movements, media strategy, digital evangelism, church planting articles, online ministry, practical discipleship, field insights, kingdom training articles"
         url="/articles"
       />
       <PageHeader
-        title="Articles"
+        title={t('page_articles')}
         description="Practical guidance, best practices, and real-world insights from the Media to Disciple Making Movements community. Learn from practitioners implementing M2DMM strategies around the world."
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
         backgroundComponent={<IdeasBackground />}
@@ -123,10 +125,10 @@ export default function ArticlesPage() {
                 <div className="text-center py-16 bg-gray-50 rounded-lg">
                   <div className="text-6xl mb-4">📝</div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    No Articles Found
+                    {t('content_no_articles_found')}
                   </h3>
                   <p className="text-gray-600">
-                    Try adjusting your filters or check back later.
+                    {t('content_no_articles_try')}
                   </p>
                 </div>
               )}
