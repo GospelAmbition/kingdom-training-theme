@@ -119,7 +119,7 @@ export default function StrategyCoursesPage() {
   return (
     <>
       <SEO
-        title={t('page_strategy_course_mvp')}
+        title={t('page_mvp_strategy_course')}
         description={t('page_strategy_course_description') + ' Complete your plan in 6-7 hours.'}
         keywords="M2DMM strategy course, MVP course, media to movements training, disciple making strategy, online evangelism course, church planting strategy, digital discipleship course, kingdom training course"
         url="/strategy-courses"
@@ -151,7 +151,7 @@ export default function StrategyCoursesPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {t('page_strategy_course_mvp')}
+                {t('page_mvp_strategy_course')}
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed">
                 {t('course_flagship_description')} {t('course_complete_plan')}
