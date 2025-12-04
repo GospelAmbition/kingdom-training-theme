@@ -29,6 +29,9 @@ export default function FeaturedImage({ src, alt }: FeaturedImageProps) {
         <img
           src={src}
           alt={alt}
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
           className="max-w-full max-h-full object-contain"
         />
       </div>

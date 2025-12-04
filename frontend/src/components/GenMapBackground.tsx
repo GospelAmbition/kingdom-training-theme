@@ -25,6 +25,12 @@ interface Particle {
 
 type Platform = 'desktop' | 'tablet' | 'mobile';
 
+// Performance: Check if animations should be disabled
+function shouldDisableAnimations(): boolean {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 export default function GenMapBackground() {
     const containerRef = useRef<HTMLDivElement>(null);
     const textPromptRef = useRef<HTMLDivElement>(null);
@@ -33,6 +39,7 @@ export default function GenMapBackground() {
     const playerScreenRef = useRef<HTMLDivElement>(null);
     const youtubeLayerRef = useRef<HTMLDivElement>(null);
     const platformRef = useRef<Platform>('desktop');
+    const isVisibleRef = useRef(true);
     
     const currentPromptIndexRef = useRef(0);
     const currentCharIndexRef = useRef(0);
@@ -43,6 +50,8 @@ export default function GenMapBackground() {
     const animationFrameRef = useRef<number>();
 
     useEffect(() => {
+        // Performance: Skip all animations if reduced motion preferred
+        if (shouldDisableAnimations()) return;
         // Particle class
         const spawnParticle = (type = 'data', forceLeft = false) => {
             if (!particlesContainerRef.current || !textPromptRef.current || !playerScreenRef.current || !containerRef.current) return;
@@ -272,6 +281,12 @@ export default function GenMapBackground() {
         };
 
         const animate = (currentTime: number) => {
+            // Performance: Skip animation when not visible
+            if (!isVisibleRef.current) {
+                animationFrameRef.current = requestAnimationFrame(animate);
+                return;
+            }
+            
             for (let i = particlesRef.current.length - 1; i >= 0; i--) {
                 if (!updateParticle(particlesRef.current[i], currentTime)) {
                     particlesRef.current.splice(i, 1);
@@ -313,10 +328,25 @@ export default function GenMapBackground() {
                 setTimeout(() => spawnParticle(), i * 50);
             }
         }, 1000);
+        
+        // Performance: Pause animation when container is not visible
+        let intersectionObserver: IntersectionObserver | null = null;
+        if (containerRef.current && typeof IntersectionObserver !== 'undefined') {
+            intersectionObserver = new IntersectionObserver(
+                ([entry]) => {
+                    isVisibleRef.current = entry.isIntersecting;
+                },
+                { threshold: 0.1 }
+            );
+            intersectionObserver.observe(containerRef.current);
+        }
 
         return () => {
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
+            }
+            if (intersectionObserver) {
+                intersectionObserver.disconnect();
             }
             clearInterval(particleInterval);
             clearInterval(frameInterval);

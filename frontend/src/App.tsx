@@ -1,19 +1,23 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import HomePage from './pages/HomePage';
-import ArticlesPage from './pages/ArticlesPage';
-import ArticleDetailPage from './pages/ArticleDetailPage';
-import StrategyCoursesPage from './pages/StrategyCoursesPage';
-import StrategyCourseDetailPage from './pages/StrategyCourseDetailPage';
-import ToolsPage from './pages/ToolsPage';
-import ToolDetailPage from './pages/ToolDetailPage';
-import AboutPage from './pages/AboutPage';
-import LoginPage from './pages/LoginPage';
-import NewsletterPage from './pages/NewsletterPage';
-import PrivacyPage from './pages/PrivacyPage';
-import NotFoundPage from './pages/NotFoundPage';
+import Loading from './components/Loading';
+
+// Lazy load page components for better code splitting
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ArticlesPage = lazy(() => import('./pages/ArticlesPage'));
+const ArticleDetailPage = lazy(() => import('./pages/ArticleDetailPage'));
+const StrategyCoursesPage = lazy(() => import('./pages/StrategyCoursesPage'));
+const StrategyCourseDetailPage = lazy(() => import('./pages/StrategyCourseDetailPage'));
+const ToolsPage = lazy(() => import('./pages/ToolsPage'));
+const ToolDetailPage = lazy(() => import('./pages/ToolDetailPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const NewsletterPage = lazy(() => import('./pages/NewsletterPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function App() {
   return (
@@ -21,6 +25,7 @@ function App() {
       <ScrollToTop />
       <Header />
       <main className="flex-grow pt-20">
+        <Suspense fallback={<Loading />}>
         <Routes>
           {/* Routes with optional language prefix */}
           <Route path="/" element={<HomePage />} />
@@ -55,6 +60,7 @@ function App() {
           
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </Suspense>
       </main>
       <Footer />
     </div>

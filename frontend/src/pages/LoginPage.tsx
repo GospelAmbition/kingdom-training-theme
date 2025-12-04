@@ -82,6 +82,8 @@ export default function LoginPage() {
                   <img
                     src={user.avatar}
                     alt={user.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-20 h-20 rounded-full mx-auto mb-4"
                   />
                 )}

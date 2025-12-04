@@ -1,7 +1,22 @@
 import { useEffect, useRef } from 'react';
 
+// Performance optimization: Determine particle count based on device capabilities
+function getParticleCount(): number {
+    if (typeof window === 'undefined') return 40;
+    
+    // Respect reduced motion preference
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 0;
+    
+    // Reduce particles on mobile for better performance
+    if (window.innerWidth < 768) return 30;
+    if (window.innerWidth < 1024) return 50;
+    
+    return 80;
+}
+
 export default function NeuralBackground() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const isVisibleRef = useRef(true);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -13,6 +28,7 @@ export default function NeuralBackground() {
         let width: number;
         let height: number;
         let animationFrameId: number;
+        
         // Particle Class
         class Particle {
             x: number;
@@ -66,10 +82,13 @@ export default function NeuralBackground() {
         }
 
         let particles: Particle[] = [];
-        const particleCount = 80;
+        const particleCount = getParticleCount();
         const connectionDistance = 150;
         const rotationSpeed = 0.001; // Radians per frame
         let globalAngle = 0;
+        
+        // Skip animation entirely if reduced motion or no particles
+        if (particleCount === 0) return;
 
         // Resize handling - use parent dimensions if available, otherwise window
         const resize = () => {
@@ -144,6 +163,12 @@ export default function NeuralBackground() {
 
         function animate() {
             if (!ctx) return;
+            
+            // Skip animation if not visible (performance optimization)
+            if (!isVisibleRef.current) {
+                animationFrameId = requestAnimationFrame(animate);
+                return;
+            }
 
             ctx.clearRect(0, 0, width, height);
 
@@ -164,11 +189,26 @@ export default function NeuralBackground() {
 
             animationFrameId = requestAnimationFrame(animate);
         }
+        
+        // Set up Intersection Observer to pause animation when not visible
+        let intersectionObserver: IntersectionObserver | null = null;
+        if (typeof IntersectionObserver !== 'undefined') {
+            intersectionObserver = new IntersectionObserver(
+                ([entry]) => {
+                    isVisibleRef.current = entry.isIntersecting;
+                },
+                { threshold: 0.1 }
+            );
+            intersectionObserver.observe(canvas);
+        }
 
         return () => {
             window.removeEventListener('resize', resize);
             if (resizeObserver) {
                 resizeObserver.disconnect();
+            }
+            if (intersectionObserver) {
+                intersectionObserver.disconnect();
             }
             cancelAnimationFrame(animationFrameId);
         };

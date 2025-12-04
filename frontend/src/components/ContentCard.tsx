@@ -32,6 +32,8 @@ export default function ContentCard({ post, type, lang, defaultLang }: ContentCa
           <img
             src={post.featured_image_url}
             alt={post.title.rendered}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
