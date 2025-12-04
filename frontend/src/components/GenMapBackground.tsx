@@ -45,13 +45,13 @@ export default function GenMapBackground() {
     useEffect(() => {
         // Particle class
         const spawnParticle = (type = 'data', forceLeft = false) => {
-            if (!particlesContainerRef.current || !textPromptRef.current || !playerScreenRef.current) return;
+            if (!particlesContainerRef.current || !textPromptRef.current || !playerScreenRef.current || !containerRef.current) return;
 
             const element = document.createElement('div');
             element.className = `particle ${type}`;
             
             const textRect = textPromptRef.current.getBoundingClientRect();
-            const containerRect = containerRef.current!.getBoundingClientRect();
+            const containerRect = containerRef.current.getBoundingClientRect();
             
             const x = textRect.left - containerRect.left + Math.random() * textRect.width;
             const y = textRect.top - containerRect.top + Math.random() * textRect.height;
@@ -153,6 +153,7 @@ export default function GenMapBackground() {
             
             // Slower initial appearance - increased from 0.8s to 1.6s
             setTimeout(() => {
+                if (!frame.parentElement) return;
                 frame.style.transition = 'all 1.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
                 frame.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(1)`;
                 frame.style.opacity = '1';
@@ -160,8 +161,10 @@ export default function GenMapBackground() {
             
             // Slower movement to YouTube player - increased delay from 2000ms to 3500ms and transition from 1.5s to 2.5s
             setTimeout(() => {
-                const playerRect = playerScreenRef.current!.getBoundingClientRect();
-                const containerRect = containerRef.current!.getBoundingClientRect();
+                if (!playerScreenRef.current || !containerRef.current || !frame.parentElement) return;
+                
+                const playerRect = playerScreenRef.current.getBoundingClientRect();
+                const containerRect = containerRef.current.getBoundingClientRect();
                 const frameRect = frame.getBoundingClientRect();
                 
                 const targetX = (playerRect.left - containerRect.left) + playerRect.width / 2 - (frameRect.left - containerRect.left) - frameRect.width / 2;
@@ -172,7 +175,9 @@ export default function GenMapBackground() {
                 frame.style.opacity = '0';
                 
                 setTimeout(() => {
-                    frame.remove();
+                    if (frame.parentElement) {
+                        frame.remove();
+                    }
                 }, 2500);
             }, 3500);
             

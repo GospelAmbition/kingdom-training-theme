@@ -176,23 +176,6 @@ export default function StrategyCourseDetailPage() {
                 ? `${course.steps}. ${course.title.rendered}`
                 : course.title.rendered}
             </h1>
-
-            {course.author_info && (
-              <div className="flex items-center space-x-3">
-                {course.author_info.avatar && (
-                  <img
-                    src={course.author_info.avatar}
-                    alt={course.author_info.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {course.author_info.name}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Progress Indicator - Only show if this course is part of the ordered steps */}
