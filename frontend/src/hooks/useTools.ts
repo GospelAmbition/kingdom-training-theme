@@ -16,17 +16,20 @@ interface ToolsParams {
   tags?: string;
   search?: string;
   lang?: string;
+  enabled?: boolean;
 }
 
 /**
  * Hook to fetch a list of tools with caching
  */
 export function useTools(params: ToolsParams = {}) {
+  const { enabled = true, ...queryParams } = params;
   return useQuery({
-    queryKey: queryKeys.tools.list(params as Record<string, unknown>),
-    queryFn: () => getTools(params),
+    queryKey: queryKeys.tools.list(queryParams as Record<string, unknown>),
+    queryFn: () => getTools(queryParams),
     staleTime: STALE_TIMES.TOOLS,
     gcTime: CACHE_TIMES.TOOLS,
+    enabled,
   });
 }
 

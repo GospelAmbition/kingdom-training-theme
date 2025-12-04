@@ -5,7 +5,7 @@ import ContentCard from '@/components/ContentCard';
 import Sidebar from '@/components/Sidebar';
 import LLMBackground from '@/components/LLMBackground';
 import SEO from '@/components/SEO';
-import { useDefaultLanguage } from '@/contexts/LanguageContext';
+import { useLanguageContext } from '@/contexts/LanguageContext';
 import { parseLanguageFromPath } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTools, useToolCategories, filterToolsByLanguage } from '@/hooks/useTools';
@@ -16,24 +16,29 @@ export default function ToolsPage() {
   const location = useLocation();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const defaultLang = useDefaultLanguage();
+  const { defaultLang, loading: langLoading } = useLanguageContext();
 
   // Get current language from URL params or path
   const currentLang = lang || parseLanguageFromPath(location.pathname).lang || undefined;
+  
+  // Determine if we have a stable language value
+  const hasExplicitLang = !!currentLang;
+  const isLanguageReady = hasExplicitLang || !langLoading;
   const targetLang = currentLang || defaultLang || null;
 
   // Get filter params
   const categoryId = searchParams.get('category');
   const tagId = searchParams.get('tag');
 
-  // Fetch data using React Query hooks
+  // Fetch data using React Query hooks - wait for language to be ready
   const { data: toolsData = [], isLoading: toolsLoading } = useTools({
     per_page: 100,
     orderby: 'date',
     order: 'desc',
     tool_categories: categoryId || undefined,
     tags: tagId || undefined,
-    lang: targetLang || undefined
+    lang: targetLang || undefined,
+    enabled: isLanguageReady,
   });
 
   const { data: categories = [], isLoading: categoriesLoading } = useToolCategories();
@@ -45,7 +50,7 @@ export default function ToolsPage() {
     [toolsData, targetLang]
   );
 
-  const loading = toolsLoading || categoriesLoading || tagsLoading;
+  const loading = !isLanguageReady || toolsLoading || categoriesLoading || tagsLoading;
 
   if (loading) {
     return (

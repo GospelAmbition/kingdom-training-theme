@@ -21,17 +21,20 @@ interface CoursesParams {
   strategy_course_categories?: string;
   search?: string;
   lang?: string;
+  enabled?: boolean;
 }
 
 /**
  * Hook to fetch a list of strategy courses with caching
  */
 export function useCourses(params: CoursesParams = {}) {
+  const { enabled = true, ...queryParams } = params;
   return useQuery({
-    queryKey: queryKeys.courses.list(params as Record<string, unknown>),
-    queryFn: () => getStrategyCourses(params),
+    queryKey: queryKeys.courses.list(queryParams as Record<string, unknown>),
+    queryFn: () => getStrategyCourses(queryParams),
     staleTime: STALE_TIMES.COURSES,
     gcTime: CACHE_TIMES.COURSES,
+    enabled,
   });
 }
 
@@ -51,12 +54,13 @@ export function useCourse(slug: string | undefined, lang?: string) {
 /**
  * Hook to fetch ordered course steps (the MVP course)
  */
-export function useOrderedCourseSteps(lang?: string, defaultLang?: string | null) {
+export function useOrderedCourseSteps(lang?: string, defaultLang?: string | null, enabled: boolean = true) {
   return useQuery({
     queryKey: queryKeys.courses.ordered(lang, defaultLang),
     queryFn: () => getOrderedCourseSteps(lang, defaultLang),
     staleTime: STALE_TIMES.COURSES,
     gcTime: CACHE_TIMES.COURSES,
+    enabled,
   });
 }
 

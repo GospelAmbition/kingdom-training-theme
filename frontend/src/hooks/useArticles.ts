@@ -15,17 +15,20 @@ interface ArticlesParams {
   article_categories?: string;
   tags?: string;
   lang?: string;
+  enabled?: boolean;
 }
 
 /**
  * Hook to fetch a list of articles with caching
  */
 export function useArticles(params: ArticlesParams = {}) {
+  const { enabled = true, ...queryParams } = params;
   return useQuery({
-    queryKey: queryKeys.articles.list(params as Record<string, unknown>),
-    queryFn: () => getArticles(params),
+    queryKey: queryKeys.articles.list(queryParams as Record<string, unknown>),
+    queryFn: () => getArticles(queryParams),
     staleTime: STALE_TIMES.ARTICLES,
     gcTime: CACHE_TIMES.ARTICLES,
+    enabled,
   });
 }
 

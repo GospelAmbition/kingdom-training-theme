@@ -6,6 +6,119 @@
  * serving content via the REST API to a React/Vite frontend for Media to Disciple Making Movements training.
  */
 
+// ============================================================================
+// PERFORMANCE OPTIMIZATIONS
+// ============================================================================
+
+/**
+ * Add caching headers for REST API responses
+ * This significantly reduces server load for repeated requests
+ */
+function gaal_add_rest_cache_headers($response, $server, $request) {
+    // Only cache GET requests
+    if ($request->get_method() !== 'GET') {
+        return $response;
+    }
+    
+    // Get the route
+    $route = $request->get_route();
+    
+    // Skip caching for auth endpoints
+    if (strpos($route, '/auth/') !== false) {
+        return $response;
+    }
+    
+    // Set cache headers for public content (5 minutes for content, 1 hour for translations)
+    $cache_time = 300; // 5 minutes default
+    
+    if (strpos($route, '/translations') !== false) {
+        $cache_time = 3600; // 1 hour for translations
+    } elseif (strpos($route, '/site-info') !== false) {
+        $cache_time = 3600; // 1 hour for site info
+    }
+    
+    $response->header('Cache-Control', 'public, max-age=' . $cache_time);
+    $response->header('Vary', 'Accept-Encoding');
+    
+    return $response;
+}
+add_filter('rest_post_dispatch', 'gaal_add_rest_cache_headers', 10, 3);
+
+/**
+ * Disable unnecessary WordPress features for headless setup
+ * This reduces PHP execution time on every request
+ */
+function gaal_disable_unnecessary_features() {
+    // Remove oEmbed discovery links
+    remove_action('wp_head', 'wp_oembed_add_discovery_links');
+    remove_action('wp_head', 'wp_oembed_add_host_js');
+    
+    // Remove REST API link in header (not needed, API still works)
+    remove_action('wp_head', 'rest_output_link_wp_head');
+    
+    // Remove shortlink
+    remove_action('wp_head', 'wp_shortlink_wp_head');
+    
+    // Remove WordPress version
+    remove_action('wp_head', 'wp_generator');
+    
+    // Remove wlwmanifest link
+    remove_action('wp_head', 'wlwmanifest_link');
+    
+    // Remove RSD link
+    remove_action('wp_head', 'rsd_link');
+    
+    // Remove feed links
+    remove_action('wp_head', 'feed_links', 2);
+    remove_action('wp_head', 'feed_links_extra', 3);
+    
+    // Disable XML-RPC (security + performance)
+    add_filter('xmlrpc_enabled', '__return_false');
+    
+    // Remove XML-RPC header
+    remove_action('wp_head', 'rsd_link');
+}
+add_action('init', 'gaal_disable_unnecessary_features');
+
+/**
+ * Disable self-pingbacks (minor performance improvement)
+ */
+function gaal_disable_self_pingback(&$links) {
+    $home = get_option('home');
+    foreach ($links as $key => $link) {
+        if (strpos($link, $home) !== false) {
+            unset($links[$key]);
+        }
+    }
+}
+add_action('pre_ping', 'gaal_disable_self_pingback');
+
+/**
+ * Limit post revisions to reduce database bloat
+ */
+if (!defined('WP_POST_REVISIONS')) {
+    define('WP_POST_REVISIONS', 5);
+}
+
+/**
+ * Optimize heartbeat API (reduces admin AJAX calls)
+ */
+function gaal_optimize_heartbeat($settings) {
+    $settings['interval'] = 60; // 60 seconds instead of 15
+    return $settings;
+}
+add_filter('heartbeat_settings', 'gaal_optimize_heartbeat');
+
+/**
+ * Disable heartbeat on frontend (not needed for headless)
+ */
+function gaal_disable_frontend_heartbeat() {
+    if (!is_admin()) {
+        wp_deregister_script('heartbeat');
+    }
+}
+add_action('init', 'gaal_disable_frontend_heartbeat', 1);
+
 // Enable REST API CORS
 function gaal_enable_cors() {
     remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
@@ -1323,8 +1436,37 @@ function kingdom_training_serve_frontend() {
             if ($mime_type) {
                 header('Content-Type: ' . $mime_type);
             }
-            // Set cache headers for assets
-            header('Cache-Control: public, max-age=31536000');
+            
+            // Enhanced cache headers for static assets (1 year cache)
+            // Use immutable for versioned assets (files with hash in name like main-abc123.js)
+            $is_versioned = preg_match('/[a-f0-9]{8,}/i', basename($file_path));
+            $cache_directive = $is_versioned 
+                ? 'public, max-age=31536000, immutable' 
+                : 'public, max-age=31536000';
+            
+            header('Cache-Control: ' . $cache_directive);
+            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
+            
+            // Add ETag for cache validation (based on file modification time and size)
+            $filemtime = filemtime($file_path);
+            $filesize = filesize($file_path);
+            $etag = md5($file_path . $filemtime . $filesize);
+            header('ETag: "' . $etag . '"');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $filemtime) . ' GMT');
+            
+            // Handle conditional requests (304 Not Modified)
+            if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === '"' . $etag . '"') {
+                header('HTTP/1.1 304 Not Modified');
+                exit;
+            }
+            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+                $if_modified_since = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+                if ($if_modified_since >= $filemtime) {
+                    header('HTTP/1.1 304 Not Modified');
+                    exit;
+                }
+            }
+            
             readfile($file_path);
             exit;
         }
@@ -1334,11 +1476,65 @@ function kingdom_training_serve_frontend() {
     // React Router will handle the routing on the client side
     $file_path = $dist_dir . '/index.html';
     if (file_exists($file_path) && is_file($file_path)) {
-        header('Content-Type: text/html');
+        // Add performance headers
+        header('Content-Type: text/html; charset=UTF-8');
+        header('X-Content-Type-Options: nosniff');
+        
+        // Cache HTML for shorter duration (5 minutes) since it may change
+        // But still cacheable to improve repeat visit performance
+        header('Cache-Control: public, max-age=300, must-revalidate');
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 300) . ' GMT');
+        
+        // Add ETag for HTML file
+        $filemtime = filemtime($file_path);
+        $filesize = filesize($file_path);
+        $etag = md5($file_path . $filemtime . $filesize);
+        header('ETag: "' . $etag . '"');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $filemtime) . ' GMT');
+        
+        // Handle conditional requests (304 Not Modified)
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === '"' . $etag . '"') {
+            header('HTTP/1.1 304 Not Modified');
+            exit;
+        }
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+            $if_modified_since = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+            if ($if_modified_since >= $filemtime) {
+                header('HTTP/1.1 304 Not Modified');
+                exit;
+            }
+        }
+        
+        // Enable compression if not already handled by server
+        if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression')) {
+            if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
+                ob_start('ob_gzhandler');
+            }
+        }
+        
         $content = file_get_contents($file_path);
         
         // Get theme URI for asset paths
         $theme_uri = get_template_directory_uri() . '/dist';
+        
+        // Add preload hints for critical resources (improves FCP/LCP)
+        $preload_hints = '';
+        
+        // Preload the main CSS file (critical for rendering)
+        if (preg_match('/href="([^"]*main[^"]*\.css)"/', $content, $css_match)) {
+            $css_path = str_replace('/', $theme_uri . '/', $css_match[1]);
+            $preload_hints .= '<link rel="preload" href="' . $css_path . '" as="style">' . "\n    ";
+        }
+        
+        // Preload Google Fonts connection
+        $preload_hints .= '<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>' . "\n    ";
+        $preload_hints .= '<link rel="dns-prefetch" href="https://fonts.googleapis.com">' . "\n    ";
+        
+        // Preload WordPress API connection
+        $preload_hints .= '<link rel="preconnect" href="' . esc_url(home_url()) . '">' . "\n    ";
+        
+        // Insert preload hints after charset meta tag
+        $content = str_replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />' . "\n    " . $preload_hints, $content);
         
         // Replace absolute asset paths with theme-relative paths
         // Handle href="/assets/..." and src="/assets/..." (most common case)

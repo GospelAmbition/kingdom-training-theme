@@ -8,7 +8,7 @@ import SEO from '@/components/SEO';
 import StructuredData from '@/components/StructuredData';
 import KeyInfoSection from '@/components/KeyInfoSection';
 import ArticleTitlesBackground from '@/components/ArticleTitlesBackground';
-import { useDefaultLanguage } from '@/contexts/LanguageContext';
+import { useLanguageContext } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useArticles, filterArticlesByLanguage } from '@/hooks/useArticles';
 import { useTools, filterToolsByLanguage } from '@/hooks/useTools';
@@ -19,37 +19,47 @@ export default function HomePage() {
   const { lang } = useParams<{ lang?: string }>();
   const location = useLocation();
   const { t, tWithReplace } = useTranslation();
-  const defaultLang = useDefaultLanguage();
+  const { defaultLang, loading: langLoading } = useLanguageContext();
 
   // Get current language from URL params or path
   const currentLang = lang || parseLanguageFromPath(location.pathname).lang || undefined;
+  
+  // Determine if we have a stable language value
+  // - If URL specifies a language, use it immediately
+  // - Otherwise, wait for language context to load to avoid duplicate requests
+  const hasExplicitLang = !!currentLang;
+  const isLanguageReady = hasExplicitLang || !langLoading;
   const targetLang = currentLang || defaultLang || null;
 
-  // Fetch data using React Query hooks
+  // Fetch data using React Query hooks - wait for language to be ready
   const { data: articlesData = [], isLoading: articlesLoading } = useArticles({ 
     per_page: 3, 
     orderby: 'date', 
     order: 'desc', 
-    lang: targetLang || undefined 
+    lang: targetLang || undefined,
+    enabled: isLanguageReady,
   });
   
   const { data: backgroundArticlesData = [], isLoading: backgroundLoading } = useArticles({ 
     per_page: 15, 
     orderby: 'date', 
     order: 'desc', 
-    lang: targetLang || undefined 
+    lang: targetLang || undefined,
+    enabled: isLanguageReady,
   });
   
   const { data: toolsData = [], isLoading: toolsLoading } = useTools({ 
     per_page: 3, 
     orderby: 'date', 
     order: 'desc', 
-    lang: targetLang || undefined 
+    lang: targetLang || undefined,
+    enabled: isLanguageReady,
   });
   
   const { data: courseSteps = [], isLoading: coursesLoading } = useOrderedCourseSteps(
     currentLang, 
-    defaultLang
+    defaultLang,
+    isLanguageReady
   );
 
   // Filter by language (memoized)
@@ -68,7 +78,7 @@ export default function HomePage() {
     [toolsData, targetLang]
   );
 
-  const loading = articlesLoading || backgroundLoading || toolsLoading || coursesLoading;
+  const loading = !isLanguageReady || articlesLoading || backgroundLoading || toolsLoading || coursesLoading;
 
   if (loading) {
     return (

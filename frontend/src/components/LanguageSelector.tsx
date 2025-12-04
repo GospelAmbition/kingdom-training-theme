@@ -224,6 +224,8 @@ export default function LanguageSelector() {
                         <img
                           src={lang.flag_url}
                           alt={lang.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-6 h-5 object-cover rounded"
                         />
                       )}

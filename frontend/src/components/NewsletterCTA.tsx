@@ -28,8 +28,14 @@ export default function NewsletterCTA({
   const [shortcodeLoading, setShortcodeLoading] = useState(true);
   const formContainerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch and render the shortcode on component mount
+  // Fetch and render the shortcode only when showEmailInput is true
   useEffect(() => {
+    // Skip fetch if we're not showing the email input
+    if (!showEmailInput) {
+      setShortcodeLoading(false);
+      return;
+    }
+    
     async function fetchShortcode() {
       try {
         const html = await renderShortcode('[go_display_opt_in source="kt_news" name="Kingdom.Training"]');
@@ -42,7 +48,7 @@ export default function NewsletterCTA({
       }
     }
     fetchShortcode();
-  }, []);
+  }, [showEmailInput]);
 
   // Intercept form submission after shortcode is rendered
   useEffect(() => {

@@ -6,7 +6,7 @@ import ProgressIndicator from '@/components/ProgressIndicator';
 import NeuralBackground from '@/components/NeuralBackground';
 import SEO from '@/components/SEO';
 import { ChevronRight } from 'lucide-react';
-import { useDefaultLanguage } from '@/contexts/LanguageContext';
+import { useLanguageContext } from '@/contexts/LanguageContext';
 import { getThemeAssetUrl, parseLanguageFromPath, buildLanguageUrl } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCourses, useOrderedCourseSteps, getAdditionalResources } from '@/hooks/useCourses';
@@ -21,25 +21,31 @@ export default function StrategyCoursesPage() {
   const { lang } = useParams<{ lang?: string }>();
   const location = useLocation();
   const { t, tWithReplace } = useTranslation();
-  const defaultLang = useDefaultLanguage();
+  const { defaultLang, loading: langLoading } = useLanguageContext();
   const roadmapRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Get current language from URL params or path
   const currentLang = lang || parseLanguageFromPath(location.pathname).lang || undefined;
+  
+  // Determine if we have a stable language value
+  const hasExplicitLang = !!currentLang;
+  const isLanguageReady = hasExplicitLang || !langLoading;
   const targetLang = currentLang || defaultLang || null;
 
-  // Fetch data using React Query hooks
+  // Fetch data using React Query hooks - wait for language to be ready
   const { data: courseSteps = [], isLoading: stepsLoading } = useOrderedCourseSteps(
     currentLang, 
-    defaultLang
+    defaultLang,
+    isLanguageReady
   );
 
   const { data: allCourses = [], isLoading: coursesLoading } = useCourses({
     per_page: 100,
     orderby: 'date',
     order: 'desc',
-    lang: currentLang
+    lang: currentLang,
+    enabled: isLanguageReady,
   });
 
   // Calculate additional resources (memoized)
@@ -48,7 +54,7 @@ export default function StrategyCoursesPage() {
     [allCourses, courseSteps, targetLang]
   );
 
-  const loading = stepsLoading || coursesLoading;
+  const loading = !isLanguageReady || stepsLoading || coursesLoading;
 
   // Parallax effect for roadmap
   useEffect(() => {

@@ -70,6 +70,9 @@ export default function Header() {
             <img
               src="https://ai.kingdom.training/wp-content/themes/kingdom-training-theme/dist/kt-logo-header.webp"
               alt="Kingdom.Training"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
               className="h-10 w-auto"
             />
           </Link>
