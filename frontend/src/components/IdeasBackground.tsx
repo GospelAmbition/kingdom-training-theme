@@ -85,10 +85,18 @@ class Spark {
                 this.opacity = 0.6 + Math.sin(progress * Math.PI * 4) * 0.2;
             }
             
-            this.blur = heightProgress * 3;
+            // Reduced blur for better performance - using opacity fade instead
+            this.blur = heightProgress * 1.5; // Reduced from 3
             const breathe = 0.7 + Math.sin(this.age / 500) * 0.3;
-            this.element.style.opacity = (this.opacity * breathe * 0.6).toString();
-            this.element.style.filter = `blur(${this.blur}px)`;
+            const finalOpacity = this.opacity * breathe * 0.6;
+            // Only apply blur if significant, otherwise use opacity fade
+            if (this.blur > 0.5) {
+                this.element.style.filter = `blur(${this.blur}px)`;
+            } else {
+                this.element.style.filter = 'none';
+            }
+            this.element.style.opacity = finalOpacity.toString();
+            this.element.style.transform = `translateZ(0)`; // GPU acceleration
         }
         
         this.updatePosition();
@@ -138,13 +146,20 @@ class Spark {
             this.opacity = 0.6 + Math.sin(progress * Math.PI * 4) * 0.2; // Subtle pulsing
         }
         
-        // Increase blur as it rises (fading out of focus)
-        this.blur = heightProgress * 3;
+        // Reduced blur for better performance - using opacity fade instead
+        this.blur = heightProgress * 1.5; // Reduced from 3
         
         // Apply opacity and blur with breathing effect
         const breathe = 0.7 + Math.sin(this.age / 500) * 0.3;
-        this.element.style.opacity = (this.opacity * breathe * 0.6).toString();
-        this.element.style.filter = `blur(${this.blur}px)`;
+        const finalOpacity = this.opacity * breathe * 0.6;
+        // Only apply blur if significant, otherwise use opacity fade
+        if (this.blur > 0.5) {
+            this.element.style.filter = `blur(${this.blur}px)`;
+        } else {
+            this.element.style.filter = 'none';
+        }
+        this.element.style.opacity = finalOpacity.toString();
+        this.element.style.transform = `translateZ(0)`; // GPU acceleration
         
         this.updatePosition();
         
@@ -165,8 +180,8 @@ export default function IdeasBackground() {
     const animationFrameRef = useRef<number>();
     const lastTimeRef = useRef<number>(performance.now());
     const lastSpawnTimeRef = useRef<number>(0);
-    const maxSparks = 2500; // Increased by 400% (from 500 to 2500)
-    const spawnInterval = 20; // Spawn new spark every 20ms
+    const maxSparks = 500; // Reduced from 2500 to improve performance
+    const spawnInterval = 50; // Increased from 20ms to 50ms to reduce spawn rate
 
     useEffect(() => {
         // Create books
@@ -226,10 +241,17 @@ export default function IdeasBackground() {
                     spark.opacity = 0.6 + Math.sin(progress * Math.PI * 4) * 0.2;
                 }
                 
-                spark.blur = heightProgress * 3;
+                spark.blur = heightProgress * 1.5; // Reduced from 3
                 const breathe = 0.7 + Math.sin(spark.age / 500) * 0.3;
-                spark.element.style.opacity = (spark.opacity * breathe * 0.6).toString();
-                spark.element.style.filter = `blur(${spark.blur}px)`;
+                const finalOpacity = spark.opacity * breathe * 0.6;
+                // Only apply blur if significant, otherwise use opacity fade
+                if (spark.blur > 0.5) {
+                    spark.element.style.filter = `blur(${spark.blur}px)`;
+                } else {
+                    spark.element.style.filter = 'none';
+                }
+                spark.element.style.opacity = finalOpacity.toString();
+                spark.element.style.transform = `translateZ(0)`; // GPU acceleration
                 spark.updatePosition();
                 
                 sparksRef.current.push(spark);

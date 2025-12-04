@@ -60,19 +60,23 @@ export function useToolCategories() {
 
 /**
  * Filter tools by language (client-side filter for results)
+ * Optimized with early return and reduced function calls
  */
 export function filterToolsByLanguage(
   tools: WordPressPost[],
   targetLang: string | null
 ): WordPressPost[] {
-  return tools.filter(tool => {
-    if (targetLang === null) {
-      // Default language: include posts with null/undefined language
-      return tool.language === null || tool.language === undefined;
-    } else {
-      // Specific language: only include posts matching that language
-      return tool.language === targetLang;
-    }
-  });
+  // Early return for empty arrays
+  if (tools.length === 0) {
+    return [];
+  }
+  
+  // If no target language, filter for null/undefined language
+  if (targetLang === null) {
+    return tools.filter(tool => tool.language == null);
+  }
+  
+  // Specific language: only include posts matching that language
+  return tools.filter(tool => tool.language === targetLang);
 }
 

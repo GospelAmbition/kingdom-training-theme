@@ -1,15 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, lazy, Suspense } from 'react';
 import { useSearchParams, useParams, useLocation } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import ContentCard from '@/components/ContentCard';
 import Sidebar from '@/components/Sidebar';
-import LLMBackground from '@/components/LLMBackground';
 import SEO from '@/components/SEO';
 import { useLanguageContext } from '@/contexts/LanguageContext';
 import { parseLanguageFromPath } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTools, useToolCategories, filterToolsByLanguage } from '@/hooks/useTools';
 import { useTags } from '@/hooks/useTags';
+
+// Lazy load heavy background component
+const LLMBackground = lazy(() => import('@/components/LLMBackground'));
 
 export default function ToolsPage() {
   const { lang } = useParams<{ lang?: string }>();
@@ -31,8 +33,9 @@ export default function ToolsPage() {
   const tagId = searchParams.get('tag');
 
   // Fetch data using React Query hooks - wait for language to be ready
+  // Reduced from 100 to 30 for better initial load performance
   const { data: toolsData = [], isLoading: toolsLoading } = useTools({
-    per_page: 100,
+    per_page: 30,
     orderby: 'date',
     order: 'desc',
     tool_categories: categoryId || undefined,
@@ -75,7 +78,11 @@ export default function ToolsPage() {
         title={t('page_tools')}
         description={t('seo_tools_description')}
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
-        backgroundComponent={<LLMBackground bottomOffset={-25} />}
+        backgroundComponent={
+          <Suspense fallback={null}>
+            <LLMBackground bottomOffset={-25} />
+          </Suspense>
+        }
       />
 
       <section className="py-16">

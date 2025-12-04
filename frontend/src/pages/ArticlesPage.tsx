@@ -1,15 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, lazy, Suspense } from 'react';
 import { useSearchParams, useParams, useLocation } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import ContentCard from '@/components/ContentCard';
 import Sidebar from '@/components/Sidebar';
-import IdeasBackground from '@/components/IdeasBackground';
 import SEO from '@/components/SEO';
 import { useLanguageContext } from '@/contexts/LanguageContext';
 import { parseLanguageFromPath } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useArticles, useArticleCategories, filterArticlesByLanguage } from '@/hooks/useArticles';
 import { useTags } from '@/hooks/useTags';
+
+// Lazy load heavy background component
+const IdeasBackground = lazy(() => import('@/components/IdeasBackground'));
 
 export default function ArticlesPage() {
   const { lang } = useParams<{ lang?: string }>();
@@ -31,8 +33,9 @@ export default function ArticlesPage() {
   const tagId = searchParams.get('tag');
 
   // Fetch data using React Query hooks - wait for language to be ready
+  // Reduced from 100 to 30 for better initial load performance
   const { data: articlesData = [], isLoading: articlesLoading } = useArticles({
-    per_page: 100,
+    per_page: 30,
     orderby: 'date',
     order: 'desc',
     article_categories: categoryId || undefined,
@@ -75,7 +78,11 @@ export default function ArticlesPage() {
         title={t('page_articles')}
         description={t('seo_articles_description')}
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
-        backgroundComponent={<IdeasBackground />}
+        backgroundComponent={
+          <Suspense fallback={null}>
+            <IdeasBackground />
+          </Suspense>
+        }
       />
 
       <section className="py-16">

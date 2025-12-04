@@ -3,6 +3,7 @@
  * Reusable card for displaying strategy courses, articles, and tools
  */
 
+import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { WordPressPost } from '@/lib/wordpress';
 import { formatDate, stripHtml, truncate, buildLanguageUrl } from '@/lib/utils';
@@ -15,14 +16,18 @@ interface ContentCardProps {
   defaultLang?: string | null;
 }
 
-export default function ContentCard({ post, type, lang, defaultLang }: ContentCardProps) {
+function ContentCard({ post, type, lang, defaultLang }: ContentCardProps) {
   const { t } = useTranslation();
-  const excerpt = stripHtml(post.excerpt.rendered);
-  const truncatedExcerpt = truncate(excerpt, 150);
   
-  // Build language-aware URL
-  const basePath = `/${type}/${post.slug}`;
-  const url = buildLanguageUrl(basePath, lang || null, defaultLang || null);
+  // Memoize expensive computations
+  const excerpt = useMemo(() => stripHtml(post.excerpt.rendered), [post.excerpt.rendered]);
+  const truncatedExcerpt = useMemo(() => truncate(excerpt, 150), [excerpt]);
+  
+  // Build language-aware URL (memoized)
+  const url = useMemo(() => {
+    const basePath = `/${type}/${post.slug}`;
+    return buildLanguageUrl(basePath, lang || null, defaultLang || null);
+  }, [type, post.slug, lang, defaultLang]);
 
   return (
     <Link to={url} className="card group">
@@ -69,4 +74,18 @@ export default function ContentCard({ post, type, lang, defaultLang }: ContentCa
     </Link>
   );
 }
+
+// Memoize component to prevent unnecessary re-renders
+export default memo(ContentCard, (prevProps, nextProps) => {
+  // Custom comparison function for better performance
+  return (
+    prevProps.post.id === nextProps.post.id &&
+    prevProps.post.title.rendered === nextProps.post.title.rendered &&
+    prevProps.post.excerpt.rendered === nextProps.post.excerpt.rendered &&
+    prevProps.post.featured_image_url === nextProps.post.featured_image_url &&
+    prevProps.type === nextProps.type &&
+    prevProps.lang === nextProps.lang &&
+    prevProps.defaultLang === nextProps.defaultLang
+  );
+});
 

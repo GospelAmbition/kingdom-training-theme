@@ -59,19 +59,23 @@ export function useArticleCategories() {
 
 /**
  * Filter articles by language (client-side filter for results)
+ * Optimized with early return and reduced function calls
  */
 export function filterArticlesByLanguage(
   articles: WordPressPost[],
   targetLang: string | null
 ): WordPressPost[] {
-  return articles.filter(article => {
-    if (targetLang === null) {
-      // Default language: include posts with null/undefined language
-      return article.language === null || article.language === undefined;
-    } else {
-      // Specific language: only include posts matching that language
-      return article.language === targetLang;
-    }
-  });
+  // Early return for empty arrays
+  if (articles.length === 0) {
+    return [];
+  }
+  
+  // If no target language, filter for null/undefined language
+  if (targetLang === null) {
+    return articles.filter(article => article.language == null);
+  }
+  
+  // Specific language: only include posts matching that language
+  return articles.filter(article => article.language === targetLang);
 }
 

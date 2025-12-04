@@ -1,15 +1,17 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import ContentCard from '@/components/ContentCard';
 import ProgressIndicator from '@/components/ProgressIndicator';
-import NeuralBackground from '@/components/NeuralBackground';
 import SEO from '@/components/SEO';
 import { ChevronRight } from 'lucide-react';
 import { useLanguageContext } from '@/contexts/LanguageContext';
 import { getThemeAssetUrl, parseLanguageFromPath, buildLanguageUrl } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCourses, useOrderedCourseSteps, getAdditionalResources } from '@/hooks/useCourses';
+
+// Lazy load heavy background component
+const NeuralBackground = lazy(() => import('@/components/NeuralBackground'));
 
 export interface CourseStep {
   number: number;
@@ -41,7 +43,7 @@ export default function StrategyCoursesPage() {
   );
 
   const { data: allCourses = [], isLoading: coursesLoading } = useCourses({
-    per_page: 100,
+    per_page: 50, // Reduced from 100 to 50 for better performance
     orderby: 'date',
     order: 'desc',
     lang: currentLang,
@@ -99,7 +101,11 @@ export default function StrategyCoursesPage() {
         title={t('page_strategy_course')}
         description={t('page_strategy_course_description')}
         backgroundClass="bg-gradient-to-r from-secondary-900 to-secondary-700"
-        backgroundComponent={<NeuralBackground />}
+        backgroundComponent={
+          <Suspense fallback={null}>
+            <NeuralBackground />
+          </Suspense>
+        }
       />
 
       {/* Course Overview */}
