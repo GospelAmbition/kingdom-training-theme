@@ -1,0 +1,1696 @@
+/**
+ * Auto Translate Dashboard JavaScript
+ * 
+ * Handles the translation queue management and UI interactions.
+ */
+
+(function($) {
+    'use strict';
+    
+    /**
+     * Translation Queue Manager
+     * Orchestrates translation of multiple posts/languages via AJAX
+     */
+    class TranslationQueueManager {
+        constructor() {
+            this.queue = [];
+            this.currentItem = null;
+            this.currentStep = null;
+            this.completed = [];
+            this.failed = [];
+            this.isPaused = false;
+            this.isCancelled = false;
+            this.isRunning = false;
+            
+            this.callbacks = {
+                onProgress: null,
+                onItemStart: null,
+                onItemComplete: null,
+                onItemError: null,
+                onQueueComplete: null,
+            };
+        }
+        
+        /**
+         * Add items to queue
+         * @param {Array} items - [{source_post_id, target_post_id, language, title}]
+         */
+        addItems(items) {
+            this.queue.push(...items);
+            this.updateProgress();
+            this.saveState();
+        }
+        
+        /**
+         * Clear the queue
+         */
+        clear() {
+            this.queue = [];
+            this.currentItem = null;
+            this.currentStep = null;
+            this.completed = [];
+            this.failed = [];
+            this.isPaused = false;
+            this.isCancelled = false;
+            this.isRunning = false;
+            this.saveState();
+        }
+        
+        /**
+         * Start processing queue
+         */
+        async start() {
+            if (this.isRunning) return;
+            
+            this.isCancelled = false;
+            this.isPaused = false;
+            this.isRunning = true;
+            
+            while (this.queue.length > 0 && !this.isCancelled) {
+                if (this.isPaused) {
+                    await this.waitForResume();
+                    if (this.isCancelled) break;
+                }
+                
+                this.currentItem = this.queue.shift();
+                this.updateProgress();
+                this.saveState();
+                
+                if (this.callbacks.onItemStart) {
+                    this.callbacks.onItemStart(this.currentItem);
+                }
+                
+                try {
+                    await this.translateItem(this.currentItem);
+                    this.completed.push(this.currentItem);
+                    
+                    if (this.callbacks.onItemComplete) {
+                        this.callbacks.onItemComplete(this.currentItem);
+                    }
+                } catch (error) {
+                    this.currentItem.error = error.message;
+                    this.failed.push(this.currentItem);
+                    
+                    if (this.callbacks.onItemError) {
+                        this.callbacks.onItemError(this.currentItem, error);
+                    }
+                }
+                
+                this.currentItem = null;
+                this.updateProgress();
+                this.saveState();
+            }
+            
+            this.isRunning = false;
+            
+            if (this.callbacks.onQueueComplete) {
+                this.callbacks.onQueueComplete({
+                    completed: this.completed,
+                    failed: this.failed,
+                    cancelled: this.isCancelled,
+                });
+            }
+        }
+        
+        /**
+         * Translate a single item using chunked translation
+         */
+        translateItem(item) {
+            return new Promise((resolve, reject) => {
+                this.translateChunked(item.source_post_id, item.language, item.target_post_id, {
+                    onProgress: (progress) => {
+                        this.currentStep = progress;
+                        this.updateProgress();
+                    },
+                    onComplete: () => resolve(),
+                    onError: (error) => reject(error),
+                });
+            });
+        }
+        
+        /**
+         * Chunked translation - sequential AJAX calls for each step
+         */
+        translateChunked(sourcePostId, targetLanguage, targetPostId, options) {
+            let jobId = null;
+            let steps = ['init'];
+            let stepIndex = 0;
+            const self = this;
+            
+            const processStep = () => {
+                if (self.isCancelled) {
+                    options.onError(new Error('Translation cancelled'));
+                    return;
+                }
+                
+                if (stepIndex >= steps.length) {
+                    options.onComplete();
+                    return;
+                }
+                
+                const step = steps[stepIndex];
+                
+                options.onProgress({
+                    step: step,
+                    stepIndex: stepIndex,
+                    totalSteps: steps.length,
+                    message: self.getStepMessage(step),
+                });
+                
+                $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'translate/chunked',
+                    method: 'POST',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        source_post_id: sourcePostId,
+                        target_language: targetLanguage,
+                        target_post_id: targetPostId || 0,
+                        step: step,
+                        job_id: jobId || 0,
+                    }),
+                    success: (response) => {
+                        if (!response.success) {
+                            options.onError(new Error(response.message || 'Translation failed'));
+                            return;
+                        }
+                        
+                        // Handle init response - get job ID and build steps array
+                        if (step === 'init') {
+                            jobId = response.job_id;
+                            steps = ['init', 'title'];
+                            for (let i = 0; i < response.chunk_count; i++) {
+                                steps.push('content_' + i);
+                            }
+                            steps.push('excerpt', 'finalize');
+                        }
+                        
+                        stepIndex++;
+                        processStep();
+                    },
+                    error: (xhr) => {
+                        const msg = xhr.responseJSON?.message || 'Request failed';
+                        options.onError(new Error(msg));
+                    },
+                });
+            };
+            
+            processStep();
+        }
+        
+        getStepMessage(step) {
+            const messages = {
+                'init': gaalAutoTranslate.strings.scanning || 'Initializing...',
+                'title': 'Translating title...',
+                'excerpt': 'Translating excerpt...',
+                'finalize': 'Saving translation...',
+            };
+            
+            if (step.startsWith('content_')) {
+                const chunk = parseInt(step.split('_')[1]) + 1;
+                return `Translating content (part ${chunk})...`;
+            }
+            
+            return messages[step] || step;
+        }
+        
+        pause() {
+            this.isPaused = true;
+            this.saveState();
+        }
+        
+        resume() {
+            this.isPaused = false;
+            if (!this.isRunning && this.queue.length > 0) {
+                this.start();
+            }
+        }
+        
+        cancel() {
+            this.isCancelled = true;
+            this.isPaused = false;
+            this.isRunning = false;
+        }
+        
+        waitForResume() {
+            return new Promise((resolve) => {
+                const check = () => {
+                    if (!this.isPaused || this.isCancelled) {
+                        resolve();
+                    } else {
+                        setTimeout(check, 100);
+                    }
+                };
+                check();
+            });
+        }
+        
+        updateProgress() {
+            if (this.callbacks.onProgress) {
+                this.callbacks.onProgress({
+                    total: this.queue.length + this.completed.length + this.failed.length + (this.currentItem ? 1 : 0),
+                    pending: this.queue.length,
+                    completed: this.completed.length,
+                    failed: this.failed.length,
+                    current: this.currentItem,
+                    currentStep: this.currentStep,
+                    isPaused: this.isPaused,
+                    isRunning: this.isRunning,
+                });
+            }
+        }
+        
+        getStats() {
+            return {
+                total: this.queue.length + this.completed.length + this.failed.length + (this.currentItem ? 1 : 0),
+                pending: this.queue.length,
+                completed: this.completed.length,
+                failed: this.failed.length,
+                isRunning: this.isRunning,
+                isPaused: this.isPaused,
+            };
+        }
+        
+        /**
+         * Save queue state to localStorage for resume after page refresh
+         */
+        saveState() {
+            try {
+                localStorage.setItem('gaal_translation_queue', JSON.stringify({
+                    queue: this.queue,
+                    completed: this.completed,
+                    failed: this.failed,
+                    isPaused: this.isPaused,
+                    savedAt: new Date().toISOString(),
+                }));
+            } catch (e) {
+                console.warn('Could not save queue state:', e);
+            }
+        }
+        
+        /**
+         * Load queue state from localStorage
+         */
+        loadState() {
+            try {
+                const state = localStorage.getItem('gaal_translation_queue');
+                if (state) {
+                    const data = JSON.parse(state);
+                    // Only restore if saved within last hour
+                    const savedAt = new Date(data.savedAt);
+                    const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+                    if (savedAt > hourAgo) {
+                        this.queue = data.queue || [];
+                        this.completed = data.completed || [];
+                        this.failed = data.failed || [];
+                        this.isPaused = data.isPaused || false;
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load queue state:', e);
+            }
+            return false;
+        }
+        
+        /**
+         * Clear saved state
+         */
+        clearState() {
+            try {
+                localStorage.removeItem('gaal_translation_queue');
+            } catch (e) {
+                console.warn('Could not clear queue state:', e);
+            }
+        }
+    }
+    
+    // Export to global scope
+    window.GAALTranslationQueue = TranslationQueueManager;
+    
+    /**
+     * Dashboard Controller
+     */
+    class DashboardController {
+        constructor() {
+            this.queue = new TranslationQueueManager();
+            this.gaps = [];
+            this.selectedGaps = new Set();
+            
+            // Translations tab state
+            this.existingTranslations = [];
+            this.selectedTranslations = [];
+            this.currentReviewPostId = null;
+            
+            // Strings tab state
+            this.allStrings = [];
+            this.filteredStrings = [];
+            this.selectedStrings = [];
+            this.currentStringsLanguage = '';
+            this.stringGroups = [];
+            
+            this.init();
+        }
+        
+        init() {
+            this.bindEvents();
+            this.setupQueueCallbacks();
+            this.initTabs();
+            
+            // Check for saved queue state
+            if (this.queue.loadState() && this.queue.queue.length > 0) {
+                this.showProgressSection();
+                this.updateProgressUI(this.queue.getStats());
+                this.updateQueueTable();
+            }
+        }
+        
+        bindEvents() {
+            // Tab navigation
+            $('.gaal-tabs .nav-tab').on('click', (e) => this.handleTabClick(e));
+            
+            // Scan button
+            $('#btn-scan').on('click', () => this.scanForGaps());
+            $('#btn-refresh-gaps').on('click', () => this.scanForGaps());
+            
+            // Create drafts buttons
+            $('#btn-create-all-drafts').on('click', () => this.createAllDrafts());
+            $('#btn-create-selected-drafts').on('click', () => this.createSelectedDrafts());
+            
+            // Translate buttons
+            $('#btn-translate-all').on('click', () => this.translateAll());
+            $('#btn-translate-selected').on('click', () => this.translateSelected());
+            
+            // Select all (gaps tab)
+            $('#select-all-gaps, #select-all-header').on('change', (e) => this.handleSelectAll(e));
+            
+            // Filters
+            $('#filter-post-type, #filter-language').on('change', () => this.applyFilters());
+            
+            // Queue controls
+            $('#btn-pause').on('click', () => this.pauseQueue());
+            $('#btn-resume').on('click', () => this.resumeQueue());
+            $('#btn-cancel').on('click', () => this.cancelQueue());
+            
+            // History refresh
+            $('#btn-refresh-history').on('click', () => this.loadHistory());
+            
+            // =============================================
+            // Translations Tab Events
+            // =============================================
+            
+            // Load translations
+            $('#btn-load-translations').on('click', () => this.loadTranslations());
+            
+            // Translations filters
+            $('#translations-filter-post-type, #translations-filter-language, #translations-filter-status').on('change', () => this.loadTranslations());
+            
+            // Select all (translations tab)
+            $('#select-all-translations, #select-all-translations-header').on('change', (e) => this.handleSelectAllTranslations(e));
+            
+            // Re-translate and LLM review buttons
+            $('#btn-retranslate-selected').on('click', () => this.retranslateSelected());
+            $('#btn-llm-review-selected').on('click', () => this.llmReviewSelected());
+            
+            // Modal controls
+            $('.gaal-modal-close, #btn-close-review').on('click', () => this.closeModal());
+            $('#btn-apply-improvement').on('click', () => this.applyLLMImprovement());
+            
+            // Close modal on background click
+            $('#llm-review-modal').on('click', (e) => {
+                if ($(e.target).is('#llm-review-modal')) {
+                    this.closeModal();
+                }
+            });
+            
+            // =============================================
+            // Strings Tab Events
+            // =============================================
+            
+            // Load strings
+            $('#btn-load-strings').on('click', () => this.loadStrings());
+            
+            // Strings filters
+            $('#strings-filter-group').on('change', () => this.filterStrings());
+            $('#strings-filter-status').on('change', () => this.filterStrings());
+            $('#strings-filter-language').on('change', () => {
+                this.currentStringsLanguage = $('#strings-filter-language').val();
+                if (this.allStrings && this.allStrings.length > 0) {
+                    this.filterStrings();
+                }
+            });
+            
+            // Select all strings
+            $('#select-all-strings, #select-all-strings-header').on('change', (e) => this.handleSelectAllStrings(e));
+            
+            // Translate selected strings
+            $('#btn-translate-strings').on('click', () => this.translateSelectedStrings());
+            
+            // String edit modal
+            $('#string-modal-close, #btn-cancel-string').on('click', () => this.closeStringModal());
+            $('#btn-save-string').on('click', () => this.saveStringTranslation());
+            $('#btn-auto-translate-string').on('click', () => this.autoTranslateString());
+            
+            // Close string modal on background click
+            $('#string-edit-modal').on('click', (e) => {
+                if ($(e.target).is('#string-edit-modal')) {
+                    this.closeStringModal();
+                }
+            });
+        }
+        
+        setupQueueCallbacks() {
+            this.queue.callbacks.onProgress = (stats) => this.updateProgressUI(stats);
+            this.queue.callbacks.onItemStart = (item) => this.onItemStart(item);
+            this.queue.callbacks.onItemComplete = (item) => this.onItemComplete(item);
+            this.queue.callbacks.onItemError = (item, error) => this.onItemError(item, error);
+            this.queue.callbacks.onQueueComplete = (result) => this.onQueueComplete(result);
+        }
+        
+        initTabs() {
+            // Check for hash in URL
+            const hash = window.location.hash.replace('#', '');
+            if (hash && $(`#${hash}`).length) {
+                this.switchTab(hash);
+            }
+        }
+        
+        handleTabClick(e) {
+            e.preventDefault();
+            const tab = $(e.currentTarget).data('tab');
+            this.switchTab(tab);
+            window.location.hash = tab;
+        }
+        
+        switchTab(tabId) {
+            $('.nav-tab').removeClass('nav-tab-active');
+            $(`.nav-tab[data-tab="${tabId}"]`).addClass('nav-tab-active');
+            
+            $('.tab-pane').removeClass('active');
+            $(`#${tabId}`).addClass('active');
+        }
+        
+        /**
+         * Scan for translation gaps
+         */
+        async scanForGaps() {
+            const $btn = $('#btn-scan');
+            const originalText = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner is-active" style="float:none;margin:0"></span> ' + gaalAutoTranslate.strings.scanning);
+            
+            try {
+                const postType = $('#filter-post-type').val();
+                const language = $('#filter-language').val();
+                
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'translate/scan',
+                    method: 'GET',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    data: {
+                        post_type: postType,
+                        language: language,
+                    },
+                });
+                
+                if (response.success) {
+                    this.gaps = Object.values(response.gaps);
+                    this.updateSummaryStats(response.summary);
+                    this.renderGapsTable();
+                    this.updateActionButtons();
+                    
+                    // Auto-switch to gaps tab if we have gaps
+                    if (this.gaps.length > 0) {
+                        this.switchTab('gaps');
+                    }
+                }
+            } catch (error) {
+                console.error('Scan failed:', error);
+                alert(gaalAutoTranslate.strings.error_occurred);
+            } finally {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        }
+        
+        updateSummaryStats(summary) {
+            $('#stat-posts-needing').text(summary.posts_needing_translation);
+            $('#stat-translations-needed').text(summary.total_translations_needed);
+            $('#stat-languages').text(summary.languages_enabled);
+        }
+        
+        renderGapsTable() {
+            const $tbody = $('#gaps-tbody');
+            $tbody.empty();
+            
+            if (this.gaps.length === 0) {
+                $tbody.html(`<tr class="gaal-empty-row"><td colspan="7">${gaalAutoTranslate.strings.no_gaps_found}</td></tr>`);
+                $('#no-gaps-message').show();
+                return;
+            }
+            
+            $('#no-gaps-message').hide();
+            
+            this.gaps.forEach((gap) => {
+                const missingBadges = gap.missing_languages.map(lang => 
+                    `<span class="lang-badge missing">${lang.toUpperCase()}</span>`
+                ).join('');
+                
+                const existingBadges = Object.keys(gap.existing_translations).map(lang =>
+                    `<span class="lang-badge exists">${lang.toUpperCase()}</span>`
+                ).join('') || '—';
+                
+                const row = `
+                    <tr data-post-id="${gap.id}">
+                        <td class="check-column">
+                            <input type="checkbox" class="gap-checkbox" value="${gap.id}" data-languages='${JSON.stringify(gap.missing_languages)}'>
+                        </td>
+                        <td class="column-title">
+                            <strong><a href="${gap.edit_link}" target="_blank">${this.escapeHtml(gap.title)}</a></strong>
+                        </td>
+                        <td class="column-type">${this.escapeHtml(gap.post_type_label)}</td>
+                        <td class="column-missing">
+                            <div class="missing-languages">${missingBadges}</div>
+                        </td>
+                        <td class="column-existing">${existingBadges}</td>
+                        <td class="column-chunks">${gap.estimated_chunks}</td>
+                        <td class="column-actions">
+                            <button type="button" class="button button-small btn-translate-single" data-post-id="${gap.id}" data-languages='${JSON.stringify(gap.missing_languages)}'>
+                                <span class="dashicons dashicons-translation"></span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $tbody.append(row);
+            });
+            
+            // Bind checkbox events
+            $('.gap-checkbox').on('change', () => this.updateSelectedCount());
+            
+            // Bind single translate buttons
+            $('.btn-translate-single').on('click', (e) => this.translateSingle(e));
+        }
+        
+        handleSelectAll(e) {
+            const isChecked = $(e.target).is(':checked');
+            $('.gap-checkbox').prop('checked', isChecked);
+            $('#select-all-gaps, #select-all-header').prop('checked', isChecked);
+            this.updateSelectedCount();
+        }
+        
+        updateSelectedCount() {
+            const checked = $('.gap-checkbox:checked');
+            const count = checked.length;
+            $('#selected-count').text(`${count} selected`);
+            
+            this.selectedGaps.clear();
+            checked.each((i, el) => {
+                this.selectedGaps.add({
+                    postId: parseInt($(el).val()),
+                    languages: $(el).data('languages'),
+                });
+            });
+            
+            $('#btn-create-selected-drafts, #btn-translate-selected').prop('disabled', count === 0);
+        }
+        
+        updateActionButtons() {
+            const hasGaps = this.gaps.length > 0;
+            $('#btn-create-all-drafts, #btn-translate-all').prop('disabled', !hasGaps);
+        }
+        
+        applyFilters() {
+            this.scanForGaps();
+        }
+        
+        /**
+         * Create drafts for all gaps
+         */
+        async createAllDrafts() {
+            if (!confirm(gaalAutoTranslate.strings.confirm_create_drafts)) {
+                return;
+            }
+            
+            const items = this.gaps.map(gap => ({
+                post_id: gap.id,
+                languages: gap.missing_languages,
+            }));
+            
+            await this.createDrafts(items);
+        }
+        
+        /**
+         * Create drafts for selected gaps
+         */
+        async createSelectedDrafts() {
+            if (!confirm(gaalAutoTranslate.strings.confirm_create_drafts)) {
+                return;
+            }
+            
+            const items = Array.from(this.selectedGaps).map(gap => ({
+                post_id: gap.postId,
+                languages: gap.languages,
+            }));
+            
+            await this.createDrafts(items);
+        }
+        
+        async createDrafts(items) {
+            const $btn = $('#btn-create-all-drafts, #btn-create-selected-drafts');
+            $btn.prop('disabled', true);
+            
+            try {
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'translate/create-drafts',
+                    method: 'POST',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ items }),
+                });
+                
+                if (response.success) {
+                    alert(`Created ${response.summary.created} drafts (${response.summary.existed} already existed, ${response.summary.errors} errors)`);
+                    this.scanForGaps(); // Refresh gaps
+                }
+            } catch (error) {
+                console.error('Create drafts failed:', error);
+                alert(gaalAutoTranslate.strings.error_occurred);
+            } finally {
+                $btn.prop('disabled', false);
+            }
+        }
+        
+        /**
+         * Translate all gaps
+         */
+        translateAll() {
+            if (!confirm(gaalAutoTranslate.strings.confirm_translate_all)) {
+                return;
+            }
+            
+            const items = [];
+            this.gaps.forEach(gap => {
+                gap.missing_languages.forEach(lang => {
+                    items.push({
+                        source_post_id: gap.id,
+                        target_post_id: 0, // Will be created
+                        language: lang,
+                        title: gap.title,
+                    });
+                });
+            });
+            
+            this.startTranslationQueue(items);
+        }
+        
+        /**
+         * Translate selected gaps
+         */
+        translateSelected() {
+            if (!confirm(gaalAutoTranslate.strings.confirm_translate_all)) {
+                return;
+            }
+            
+            const items = [];
+            this.selectedGaps.forEach(gap => {
+                const gapData = this.gaps.find(g => g.id === gap.postId);
+                gap.languages.forEach(lang => {
+                    items.push({
+                        source_post_id: gap.postId,
+                        target_post_id: 0,
+                        language: lang,
+                        title: gapData ? gapData.title : 'Unknown',
+                    });
+                });
+            });
+            
+            this.startTranslationQueue(items);
+        }
+        
+        /**
+         * Translate a single post
+         */
+        translateSingle(e) {
+            const $btn = $(e.currentTarget);
+            const postId = $btn.data('post-id');
+            const languages = $btn.data('languages');
+            const gap = this.gaps.find(g => g.id === postId);
+            
+            const items = languages.map(lang => ({
+                source_post_id: postId,
+                target_post_id: 0,
+                language: lang,
+                title: gap ? gap.title : 'Unknown',
+            }));
+            
+            this.startTranslationQueue(items);
+        }
+        
+        startTranslationQueue(items) {
+            this.queue.clear();
+            this.queue.addItems(items);
+            this.showProgressSection();
+            this.updateQueueTable();
+            this.queue.start();
+        }
+        
+        showProgressSection() {
+            $('#progress-section').slideDown();
+            this.switchTab('overview');
+        }
+        
+        hideProgressSection() {
+            $('#progress-section').slideUp();
+        }
+        
+        updateProgressUI(stats) {
+            const total = stats.total || 1;
+            const completed = stats.completed || 0;
+            const failed = stats.failed || 0;
+            const percent = Math.round((completed / total) * 100);
+            
+            $('#overall-progress').css('width', percent + '%');
+            $('#progress-completed').text(completed);
+            $('#progress-total').text(total);
+            $('#progress-failed').text(failed);
+            
+            if (failed > 0) {
+                $('#progress-failed-container').show();
+            }
+            
+            // Update queue stats
+            $('#queue-pending').text(stats.pending || 0);
+            $('#queue-processing').text(stats.current ? 1 : 0);
+            $('#queue-completed').text(completed);
+            $('#queue-failed').text(failed);
+            
+            // Update current item display
+            if (stats.current) {
+                let stepInfo = '';
+                if (stats.currentStep) {
+                    stepInfo = ` — ${stats.currentStep.message}`;
+                }
+                $('#current-item').html(`
+                    <strong>${this.escapeHtml(stats.current.title)}</strong> 
+                    → ${stats.current.language.toUpperCase()}${stepInfo}
+                `);
+            } else {
+                $('#current-item').empty();
+            }
+            
+            // Update pause/resume buttons
+            if (stats.isPaused) {
+                $('#btn-pause').hide();
+                $('#btn-resume').show();
+            } else {
+                $('#btn-pause').show();
+                $('#btn-resume').hide();
+            }
+            
+            // Stop spinning if not running
+            if (!stats.isRunning) {
+                $('.gaal-spinning').removeClass('gaal-spinning');
+            }
+        }
+        
+        updateQueueTable() {
+            const $tbody = $('#queue-tbody');
+            const stats = this.queue.getStats();
+            
+            if (stats.total === 0) {
+                $tbody.html('<tr class="gaal-empty-row"><td colspan="5">No items in queue.</td></tr>');
+                return;
+            }
+            
+            $tbody.empty();
+            
+            // Add pending items
+            this.queue.queue.forEach(item => {
+                $tbody.append(this.renderQueueRow(item, 'pending'));
+            });
+            
+            // Add current item
+            if (this.queue.currentItem) {
+                $tbody.prepend(this.renderQueueRow(this.queue.currentItem, 'processing'));
+            }
+            
+            // Add completed items
+            this.queue.completed.forEach(item => {
+                $tbody.prepend(this.renderQueueRow(item, 'completed'));
+            });
+            
+            // Add failed items
+            this.queue.failed.forEach(item => {
+                $tbody.prepend(this.renderQueueRow(item, 'failed'));
+            });
+        }
+        
+        renderQueueRow(item, status) {
+            const statusClass = {
+                pending: '',
+                processing: 'gaal-status-processing',
+                completed: 'gaal-status-completed',
+                failed: 'gaal-status-failed',
+            }[status] || '';
+            
+            const statusLabel = {
+                pending: 'Pending',
+                processing: 'Processing...',
+                completed: 'Complete',
+                failed: 'Failed',
+            }[status] || status;
+            
+            const progress = status === 'processing' && this.queue.currentStep
+                ? `${this.queue.currentStep.stepIndex + 1} / ${this.queue.currentStep.totalSteps}`
+                : '—';
+            
+            return `
+                <tr class="${statusClass}">
+                    <td class="column-title">${this.escapeHtml(item.title)}</td>
+                    <td class="column-language"><span class="lang-badge">${item.language.toUpperCase()}</span></td>
+                    <td class="column-status">${statusLabel}</td>
+                    <td class="column-progress">${progress}</td>
+                    <td class="column-actions">
+                        ${status === 'failed' ? `<button class="button button-small btn-retry" data-item='${JSON.stringify(item)}'>Retry</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        }
+        
+        pauseQueue() {
+            this.queue.pause();
+        }
+        
+        resumeQueue() {
+            this.queue.resume();
+        }
+        
+        cancelQueue() {
+            if (confirm('Are you sure you want to cancel the translation queue?')) {
+                this.queue.cancel();
+                this.queue.clearState();
+                this.hideProgressSection();
+            }
+        }
+        
+        onItemStart(item) {
+            this.updateQueueTable();
+        }
+        
+        onItemComplete(item) {
+            this.updateQueueTable();
+        }
+        
+        onItemError(item, error) {
+            console.error('Translation error:', item, error);
+            this.updateQueueTable();
+        }
+        
+        onQueueComplete(result) {
+            const { completed, failed, cancelled } = result;
+            
+            if (cancelled) {
+                // User cancelled
+                return;
+            }
+            
+            $('#overall-progress').addClass('complete');
+            
+            let message = `Translation complete! ${completed.length} succeeded`;
+            if (failed.length > 0) {
+                message += `, ${failed.length} failed`;
+            }
+            
+            alert(message);
+            
+            // Refresh gaps to show updated state
+            this.scanForGaps();
+            this.queue.clearState();
+        }
+        
+        async loadHistory() {
+            // TODO: Implement history loading from translation jobs
+            console.log('Load history not yet implemented');
+        }
+        
+        // =============================================
+        // Translations Tab Methods
+        // =============================================
+        
+        /**
+         * Load existing translations
+         */
+        async loadTranslations() {
+            const $btn = $('#btn-load-translations');
+            const originalText = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner is-active" style="float:none;margin:0"></span> Loading...');
+            
+            try {
+                const postType = $('#translations-filter-post-type').val();
+                const language = $('#translations-filter-language').val();
+                const status = $('#translations-filter-status').val();
+                
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'translate/existing',
+                    method: 'GET',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    data: {
+                        post_type: postType,
+                        language: language,
+                        status: status,
+                    },
+                });
+                
+                if (response.success) {
+                    this.existingTranslations = response.translations;
+                    this.renderTranslationsTable();
+                }
+            } catch (error) {
+                console.error('Load translations failed:', error);
+                alert(gaalAutoTranslate.strings.error_occurred || 'An error occurred');
+            } finally {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        }
+        
+        renderTranslationsTable() {
+            const $tbody = $('#translations-tbody');
+            $tbody.empty();
+            
+            if (!this.existingTranslations || this.existingTranslations.length === 0) {
+                $tbody.html('<tr class="gaal-empty-row"><td colspan="8">No translations found.</td></tr>');
+                $('#no-translations-message').show();
+                return;
+            }
+            
+            $('#no-translations-message').hide();
+            
+            this.existingTranslations.forEach((t) => {
+                const scoreHtml = this.renderScoreBadge(t.evaluation);
+                const statusHtml = `<span class="status-badge status-${t.status}">${t.status}</span>`;
+                const sourceLink = t.source_edit_link 
+                    ? `<a href="${t.source_edit_link}" target="_blank" title="${this.escapeHtml(t.source_title || '')}">${this.truncate(t.source_title || 'View', 25)}</a>`
+                    : '—';
+                
+                const row = `
+                    <tr data-post-id="${t.id}" data-source-id="${t.source_post_id || ''}">
+                        <td class="check-column">
+                            <input type="checkbox" class="translation-checkbox" value="${t.id}" 
+                                data-source-id="${t.source_post_id || ''}"
+                                data-language="${t.language}"
+                                data-title="${this.escapeHtml(t.title)}">
+                        </td>
+                        <td class="column-title">
+                            <strong><a href="${t.edit_link}" target="_blank">${this.escapeHtml(t.title)}</a></strong>
+                        </td>
+                        <td class="column-source">${sourceLink}</td>
+                        <td class="column-language">
+                            <span class="lang-badge">${t.language.toUpperCase()}</span>
+                        </td>
+                        <td class="column-type">${this.escapeHtml(t.post_type_label)}</td>
+                        <td class="column-status">${statusHtml}</td>
+                        <td class="column-score">${scoreHtml}</td>
+                        <td class="column-actions">
+                            <div class="gaal-action-buttons">
+                                <button type="button" class="button button-small btn-retranslate-single" 
+                                    data-post-id="${t.id}" 
+                                    data-source-id="${t.source_post_id || ''}"
+                                    data-language="${t.language}"
+                                    data-title="${this.escapeHtml(t.title)}"
+                                    title="Re-translate">
+                                    <span class="dashicons dashicons-update"></span>
+                                </button>
+                                <button type="button" class="button button-small btn-llm-review-single" 
+                                    data-post-id="${t.id}"
+                                    data-title="${this.escapeHtml(t.title)}"
+                                    data-language="${t.language}"
+                                    title="LLM Review">
+                                    <span class="dashicons dashicons-welcome-learn-more"></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                $tbody.append(row);
+            });
+            
+            // Bind checkbox events
+            $('.translation-checkbox').on('change', () => this.updateTranslationsSelectedCount());
+            
+            // Bind action buttons
+            $('.btn-retranslate-single').on('click', (e) => this.retranslateSingle(e));
+            $('.btn-llm-review-single').on('click', (e) => this.llmReviewSingle(e));
+        }
+        
+        renderScoreBadge(evaluation) {
+            if (!evaluation || !evaluation.score) {
+                return '<span class="llm-score score-none">—</span>';
+            }
+            
+            const score = evaluation.score;
+            let scoreClass = 'score-medium';
+            if (score >= 80) scoreClass = 'score-high';
+            else if (score < 60) scoreClass = 'score-low';
+            
+            return `<span class="llm-score ${scoreClass}">${score}</span>`;
+        }
+        
+        handleSelectAllTranslations(e) {
+            const isChecked = $(e.target).is(':checked');
+            $('.translation-checkbox').prop('checked', isChecked);
+            $('#select-all-translations, #select-all-translations-header').prop('checked', isChecked);
+            this.updateTranslationsSelectedCount();
+        }
+        
+        updateTranslationsSelectedCount() {
+            const checked = $('.translation-checkbox:checked');
+            const count = checked.length;
+            $('#translations-selected-count').text(`${count} selected`);
+            
+            this.selectedTranslations = [];
+            checked.each((i, el) => {
+                this.selectedTranslations.push({
+                    postId: parseInt($(el).val()),
+                    sourceId: parseInt($(el).data('source-id')) || null,
+                    language: $(el).data('language'),
+                    title: $(el).data('title'),
+                });
+            });
+            
+            $('#btn-retranslate-selected, #btn-llm-review-selected').prop('disabled', count === 0);
+        }
+        
+        /**
+         * Re-translate a single post
+         */
+        retranslateSingle(e) {
+            const $btn = $(e.currentTarget);
+            const postId = $btn.data('post-id');
+            const sourceId = $btn.data('source-id');
+            const language = $btn.data('language');
+            const title = $btn.data('title');
+            
+            if (!sourceId) {
+                alert('Cannot re-translate: English source post not found.');
+                return;
+            }
+            
+            if (!confirm(`Re-translate "${title}" from English?\n\nThis will overwrite the current translation.`)) {
+                return;
+            }
+            
+            const items = [{
+                source_post_id: sourceId,
+                target_post_id: postId,
+                language: language,
+                title: title,
+            }];
+            
+            this.startTranslationQueue(items);
+        }
+        
+        /**
+         * Re-translate selected posts
+         */
+        retranslateSelected() {
+            if (!this.selectedTranslations || this.selectedTranslations.length === 0) {
+                return;
+            }
+            
+            const validItems = this.selectedTranslations.filter(t => t.sourceId);
+            
+            if (validItems.length === 0) {
+                alert('No selected translations have an English source post.');
+                return;
+            }
+            
+            if (!confirm(`Re-translate ${validItems.length} post(s) from English?\n\nThis will overwrite the current translations.`)) {
+                return;
+            }
+            
+            const items = validItems.map(t => ({
+                source_post_id: t.sourceId,
+                target_post_id: t.postId,
+                language: t.language,
+                title: t.title,
+            }));
+            
+            this.startTranslationQueue(items);
+        }
+        
+        /**
+         * LLM review a single post
+         */
+        async llmReviewSingle(e) {
+            const $btn = $(e.currentTarget);
+            const postId = $btn.data('post-id');
+            const title = $btn.data('title');
+            const language = $btn.data('language');
+            
+            this.currentReviewPostId = postId;
+            this.showLLMReviewModal(postId, title, language);
+        }
+        
+        /**
+         * LLM review selected posts (one at a time)
+         */
+        async llmReviewSelected() {
+            if (!this.selectedTranslations || this.selectedTranslations.length === 0) {
+                return;
+            }
+            
+            // For now, just review the first one
+            const first = this.selectedTranslations[0];
+            this.currentReviewPostId = first.postId;
+            this.showLLMReviewModal(first.postId, first.title, first.language);
+        }
+        
+        showLLMReviewModal(postId, title, language) {
+            const langName = gaalAutoTranslate.languages[language]?.name || language.toUpperCase();
+            
+            $('#review-post-title').text(title);
+            $('#review-language').text(langName);
+            $('#review-progress').show();
+            $('#review-result').hide();
+            $('#llm-review-modal').show();
+            
+            this.runLLMEvaluation(postId);
+        }
+        
+        async runLLMEvaluation(postId) {
+            try {
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'translate/llm-evaluate',
+                    method: 'POST',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ post_id: postId }),
+                });
+                
+                if (response.success) {
+                    this.showEvaluationResult(response.evaluation);
+                } else {
+                    throw new Error(response.message || 'Evaluation failed');
+                }
+            } catch (error) {
+                console.error('LLM evaluation failed:', error);
+                $('#review-progress').hide();
+                alert('LLM evaluation failed: ' + (error.responseJSON?.message || error.message || 'Unknown error'));
+                this.closeModal();
+            }
+        }
+        
+        showEvaluationResult(evaluation) {
+            $('#review-progress').hide();
+            $('#review-score').text(evaluation.score);
+            
+            // Color the score based on value
+            const $scoreValue = $('#review-score');
+            $scoreValue.removeClass('score-high score-medium score-low');
+            if (evaluation.score >= 80) $scoreValue.addClass('score-high');
+            else if (evaluation.score < 60) $scoreValue.addClass('score-low');
+            else $scoreValue.addClass('score-medium');
+            
+            // Build detailed feedback HTML
+            let feedbackHtml = '';
+            
+            // Summary
+            if (evaluation.summary) {
+                feedbackHtml += `<p><strong>${this.escapeHtml(evaluation.summary)}</strong></p>`;
+            }
+            
+            // Issues found
+            if (evaluation.issues && evaluation.issues.length > 0) {
+                feedbackHtml += '<div class="review-section"><h5>Issues Found:</h5><ul>';
+                evaluation.issues.forEach(issue => {
+                    feedbackHtml += `<li>${this.escapeHtml(issue)}</li>`;
+                });
+                feedbackHtml += '</ul></div>';
+            }
+            
+            // What improvements would do
+            if (evaluation.improvements && evaluation.improvements.length > 0) {
+                feedbackHtml += '<div class="review-section"><h5>If Improved, the LLM Would:</h5><ul>';
+                evaluation.improvements.forEach(imp => {
+                    feedbackHtml += `<li>${this.escapeHtml(imp)}</li>`;
+                });
+                feedbackHtml += '</ul></div>';
+            }
+            
+            // Detailed feedback paragraph
+            if (evaluation.feedback && !evaluation.summary) {
+                // Only show raw feedback if we don't have structured data
+                feedbackHtml += `<p>${this.escapeHtml(evaluation.feedback).replace(/\n/g, '<br>')}</p>`;
+            } else if (evaluation.feedback && evaluation.feedback !== evaluation.summary) {
+                // Show additional detail if it's different from summary
+                const cleanFeedback = evaluation.feedback
+                    .replace(/Issues found:[\s\S]*?(?=If improved|$)/gi, '')
+                    .replace(/If improved[\s\S]*/gi, '')
+                    .trim();
+                if (cleanFeedback && cleanFeedback !== evaluation.summary) {
+                    feedbackHtml += `<div class="review-section"><h5>Additional Notes:</h5><p>${this.escapeHtml(cleanFeedback).replace(/\n/g, '<br>')}</p></div>`;
+                }
+            }
+            
+            if (!feedbackHtml) {
+                feedbackHtml = '<p>No detailed feedback available.</p>';
+            }
+            
+            $('#review-feedback').html(feedbackHtml);
+            $('#review-result').show();
+        }
+        
+        async applyLLMImprovement() {
+            if (!this.currentReviewPostId) return;
+            
+            const $btn = $('#btn-apply-improvement');
+            const originalText = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner is-active" style="float:none;margin:0"></span> Improving...');
+            
+            try {
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'translate/llm-improve',
+                    method: 'POST',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ post_id: this.currentReviewPostId }),
+                });
+                
+                if (response.success) {
+                    alert('Translation improved successfully!');
+                    this.closeModal();
+                    this.loadTranslations(); // Refresh the table
+                } else {
+                    throw new Error(response.message || 'Improvement failed');
+                }
+            } catch (error) {
+                console.error('LLM improvement failed:', error);
+                alert('LLM improvement failed: ' + (error.responseJSON?.message || error.message || 'Unknown error'));
+            } finally {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        }
+        
+        closeModal() {
+            $('#llm-review-modal').hide();
+            this.currentReviewPostId = null;
+        }
+        
+        // =============================================
+        // Strings Tab Methods
+        // =============================================
+        
+        /**
+         * Load all Polylang strings
+         */
+        async loadStrings() {
+            const language = $('#strings-filter-language').val();
+            if (!language) {
+                alert('Please select a language first.');
+                return;
+            }
+            
+            this.currentStringsLanguage = language;
+            
+            const $btn = $('#btn-load-strings');
+            const originalText = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner is-active" style="float:none;margin:0"></span> Loading...');
+            
+            try {
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'strings',
+                    method: 'GET',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                });
+                
+                if (response.success) {
+                    this.allStrings = response.strings;
+                    this.stringGroups = response.groups;
+                    this.updateStringsGroupFilter();
+                    this.updateStringsSummary(response.summary);
+                    this.filterStrings();
+                }
+            } catch (error) {
+                console.error('Load strings failed:', error);
+                alert('Failed to load strings: ' + (error.responseJSON?.message || error.message || 'Unknown error'));
+            } finally {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        }
+        
+        updateStringsGroupFilter() {
+            const $select = $('#strings-filter-group');
+            const currentValue = $select.val();
+            
+            $select.find('option:not(:first)').remove();
+            
+            this.stringGroups.forEach(group => {
+                $select.append(`<option value="${this.escapeHtml(group)}">${this.escapeHtml(group)}</option>`);
+            });
+            
+            if (currentValue) {
+                $select.val(currentValue);
+            }
+        }
+        
+        updateStringsSummary(summary) {
+            $('#strings-total').text(summary.total);
+            $('#strings-complete').text(summary.complete);
+            $('#strings-incomplete').text(summary.incomplete);
+        }
+        
+        filterStrings() {
+            const group = $('#strings-filter-group').val();
+            const status = $('#strings-filter-status').val();
+            const language = this.currentStringsLanguage;
+            
+            this.filteredStrings = this.allStrings.filter(s => {
+                // Group filter
+                if (group && s.group !== group) return false;
+                
+                // Status filter
+                if (status === 'missing' && !s.missing_languages.includes(language)) return false;
+                if (status === 'translated' && s.missing_languages.includes(language)) return false;
+                
+                return true;
+            });
+            
+            this.renderStringsTable();
+        }
+        
+        renderStringsTable() {
+            const $tbody = $('#strings-tbody');
+            $tbody.empty();
+            
+            if (!this.currentStringsLanguage) {
+                $tbody.html('<tr class="gaal-empty-row"><td colspan="5">Please select a language to view strings.</td></tr>');
+                return;
+            }
+            
+            if (this.filteredStrings.length === 0) {
+                $tbody.html('<tr class="gaal-empty-row"><td colspan="5">No strings found matching your filters.</td></tr>');
+                $('#no-strings-message').show();
+                return;
+            }
+            
+            $('#no-strings-message').hide();
+            const language = this.currentStringsLanguage;
+            
+            this.filteredStrings.forEach((s, index) => {
+                const hasTranslation = s.translations && s.translations[language];
+                const translationText = hasTranslation 
+                    ? `<span class="translation-exists string-text">${this.escapeHtml(s.translations[language])}</span>`
+                    : `<span class="translation-missing">Not translated</span>`;
+                
+                const originalClass = s.multiline ? 'string-text multiline' : 'string-text';
+                
+                const row = `
+                    <tr data-index="${index}">
+                        <td class="check-column">
+                            <input type="checkbox" class="string-checkbox" value="${index}" 
+                                data-string="${this.escapeHtml(s.string)}"
+                                ${hasTranslation ? 'data-has-translation="true"' : ''}>
+                        </td>
+                        <td class="column-group">
+                            <span class="group-badge">${this.escapeHtml(s.group)}</span>
+                        </td>
+                        <td class="column-original">
+                            <span class="${originalClass}">${this.escapeHtml(s.string)}</span>
+                        </td>
+                        <td class="column-translation">${translationText}</td>
+                        <td class="column-actions">
+                            <button type="button" class="button button-small btn-edit-string" 
+                                data-index="${index}" title="Edit / Translate">
+                                <span class="dashicons dashicons-edit"></span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $tbody.append(row);
+            });
+            
+            // Bind events
+            $('.string-checkbox').on('change', () => this.updateStringsSelectedCount());
+            $('.btn-edit-string').on('click', (e) => this.openStringEditModal(e));
+        }
+        
+        handleSelectAllStrings(e) {
+            const isChecked = $(e.target).is(':checked');
+            $('.string-checkbox').prop('checked', isChecked);
+            $('#select-all-strings, #select-all-strings-header').prop('checked', isChecked);
+            this.updateStringsSelectedCount();
+        }
+        
+        updateStringsSelectedCount() {
+            const checked = $('.string-checkbox:checked');
+            const count = checked.length;
+            $('#strings-selected-count').text(`${count} selected`);
+            
+            this.selectedStrings = [];
+            checked.each((i, el) => {
+                const index = parseInt($(el).val());
+                this.selectedStrings.push(this.filteredStrings[index]);
+            });
+            
+            $('#btn-translate-strings').prop('disabled', count === 0);
+        }
+        
+        openStringEditModal(e) {
+            const index = $(e.currentTarget).data('index');
+            const stringData = this.filteredStrings[index];
+            
+            $('#edit-string-original').text(stringData.string);
+            $('#edit-string-value').val(stringData.string);
+            $('#edit-string-language').val(this.currentStringsLanguage);
+            
+            const translation = stringData.translations?.[this.currentStringsLanguage] || '';
+            $('#edit-string-translation').val(translation);
+            
+            $('#string-edit-modal').show();
+        }
+        
+        closeStringModal() {
+            $('#string-edit-modal').hide();
+        }
+        
+        async saveStringTranslation() {
+            const $btn = $('#btn-save-string');
+            const originalText = $btn.html();
+            
+            const string = $('#edit-string-value').val();
+            const translation = $('#edit-string-translation').val();
+            const language = $('#edit-string-language').val();
+            
+            if (!translation.trim()) {
+                alert('Please enter a translation.');
+                return;
+            }
+            
+            $btn.prop('disabled', true).html('<span class="spinner is-active" style="float:none;margin:0"></span> Saving...');
+            
+            try {
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'strings/save',
+                    method: 'POST',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ string, translation, language }),
+                });
+                
+                if (response.success) {
+                    this.closeStringModal();
+                    // Update local data
+                    const stringObj = this.allStrings.find(s => s.string === string);
+                    if (stringObj) {
+                        if (!stringObj.translations) stringObj.translations = {};
+                        stringObj.translations[language] = translation;
+                        // Remove from missing
+                        const idx = stringObj.missing_languages.indexOf(language);
+                        if (idx > -1) stringObj.missing_languages.splice(idx, 1);
+                    }
+                    this.filterStrings(); // Re-render
+                }
+            } catch (error) {
+                console.error('Save string failed:', error);
+                alert('Failed to save: ' + (error.responseJSON?.message || error.message || 'Unknown error'));
+            } finally {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        }
+        
+        async autoTranslateString() {
+            const $btn = $('#btn-auto-translate-string');
+            const originalText = $btn.html();
+            
+            const string = $('#edit-string-value').val();
+            const language = $('#edit-string-language').val();
+            
+            $btn.prop('disabled', true).html('<span class="spinner is-active" style="float:none;margin:0"></span> Translating...');
+            
+            try {
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'strings/translate',
+                    method: 'POST',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ string, language, save: false }),
+                });
+                
+                if (response.success) {
+                    $('#edit-string-translation').val(response.translation);
+                }
+            } catch (error) {
+                console.error('Auto translate failed:', error);
+                alert('Translation failed: ' + (error.responseJSON?.message || error.message || 'Unknown error'));
+            } finally {
+                $btn.prop('disabled', false).html(originalText);
+            }
+        }
+        
+        async translateSingleString(e) {
+            const index = $(e.currentTarget).data('index');
+            const stringData = this.filteredStrings[index];
+            const language = this.currentStringsLanguage;
+            
+            const $btn = $(e.currentTarget);
+            $btn.prop('disabled', true);
+            
+            try {
+                const response = await $.ajax({
+                    url: gaalAutoTranslate.apiUrl + 'strings/translate',
+                    method: 'POST',
+                    beforeSend: (xhr) => {
+                        xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ 
+                        string: stringData.string, 
+                        language, 
+                        save: true 
+                    }),
+                });
+                
+                if (response.success) {
+                    // Update local data
+                    if (!stringData.translations) stringData.translations = {};
+                    stringData.translations[language] = response.translation;
+                    const idx = stringData.missing_languages.indexOf(language);
+                    if (idx > -1) stringData.missing_languages.splice(idx, 1);
+                    
+                    this.filterStrings(); // Re-render
+                }
+            } catch (error) {
+                console.error('Translate single string failed:', error);
+                alert('Translation failed: ' + (error.responseJSON?.message || error.message || 'Unknown error'));
+            } finally {
+                $btn.prop('disabled', false);
+            }
+        }
+        
+        async translateSelectedStrings() {
+            if (!this.selectedStrings || this.selectedStrings.length === 0) {
+                return;
+            }
+            
+            const language = this.currentStringsLanguage;
+            const stringsToTranslate = this.selectedStrings
+                .filter(s => s.missing_languages.includes(language))
+                .map(s => s.string);
+            
+            if (stringsToTranslate.length === 0) {
+                alert('All selected strings are already translated.');
+                return;
+            }
+            
+            if (!confirm(`Translate ${stringsToTranslate.length} string(s) to ${language.toUpperCase()}?`)) {
+                return;
+            }
+            
+            // Show progress
+            $('#strings-progress-section').show();
+            $('#strings-progress-total').text(stringsToTranslate.length);
+            $('#strings-progress-completed').text(0);
+            $('#strings-progress').css('width', '0%');
+            
+            let completed = 0;
+            
+            // Translate one at a time to avoid timeouts
+            for (const string of stringsToTranslate) {
+                try {
+                    const response = await $.ajax({
+                        url: gaalAutoTranslate.apiUrl + 'strings/translate',
+                        method: 'POST',
+                        beforeSend: (xhr) => {
+                            xhr.setRequestHeader('X-WP-Nonce', gaalAutoTranslate.nonce);
+                        },
+                        contentType: 'application/json',
+                        data: JSON.stringify({ string, language, save: true }),
+                    });
+                    
+                    if (response.success) {
+                        // Update local data
+                        const stringObj = this.allStrings.find(s => s.string === string);
+                        if (stringObj) {
+                            if (!stringObj.translations) stringObj.translations = {};
+                            stringObj.translations[language] = response.translation;
+                            const idx = stringObj.missing_languages.indexOf(language);
+                            if (idx > -1) stringObj.missing_languages.splice(idx, 1);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to translate:', string, error);
+                }
+                
+                completed++;
+                $('#strings-progress-completed').text(completed);
+                const percent = Math.round((completed / stringsToTranslate.length) * 100);
+                $('#strings-progress').css('width', percent + '%');
+            }
+            
+            // Hide progress and refresh
+            setTimeout(() => {
+                $('#strings-progress-section').hide();
+                $('#strings-progress').removeClass('complete');
+            }, 1500);
+            
+            $('#strings-progress').addClass('complete');
+            this.filterStrings(); // Re-render
+            
+            alert(`Translated ${completed} string(s).`);
+        }
+        
+        truncate(str, maxLength) {
+            if (!str) return '';
+            if (str.length <= maxLength) return str;
+            return str.substring(0, maxLength) + '...';
+        }
+        
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    }
+    
+    // Initialize dashboard when DOM is ready
+    $(document).ready(function() {
+        window.gaalDashboard = new DashboardController();
+    });
+    
+})(jQuery);

@@ -1,0 +1,918 @@
+/**
+ * Auto Translate Dashboard Styles
+ */
+
+/* Dashboard Layout */
+.gaal-auto-translate-dashboard {
+    max-width: 1400px;
+}
+
+.gaal-auto-translate-dashboard h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Tab Navigation */
+.gaal-tabs {
+    margin-bottom: 0;
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.gaal-tabs .nav-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+}
+
+.gaal-tabs .nav-tab .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.tab-content {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-top: none;
+    padding: 20px;
+}
+
+.tab-content .tab-pane {
+    display: none;
+}
+
+.tab-content .tab-pane.active {
+    display: block;
+}
+
+/* Summary Cards */
+.gaal-summary-cards {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.gaal-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 220px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.gaal-card-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #2271b1 0%, #135e96 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gaal-card-icon .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #fff;
+}
+
+.gaal-card-content {
+    flex: 1;
+}
+
+.gaal-card-number {
+    font-size: 36px;
+    font-weight: 600;
+    color: #1d2327;
+    line-height: 1;
+}
+
+.gaal-card-label {
+    font-size: 13px;
+    color: #646970;
+    margin-top: 4px;
+}
+
+/* Sections */
+.gaal-section {
+    margin: 30px 0;
+}
+
+.gaal-section h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+/* Quick Actions */
+.gaal-quick-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.gaal-quick-actions .button-hero {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    height: auto;
+}
+
+.gaal-quick-actions .button-hero .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Progress Section */
+.gaal-progress-section {
+    background: #fff;
+    border: 1px solid #2271b1;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.gaal-progress-section h3 {
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2271b1;
+}
+
+.gaal-spinning {
+    animation: gaal-spin 1s linear infinite;
+}
+
+@keyframes gaal-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.gaal-progress-bar-container {
+    background: #dcdcde;
+    border-radius: 4px;
+    height: 24px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.gaal-progress-bar {
+    background: linear-gradient(90deg, #2271b1, #135e96);
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.gaal-progress-bar.complete {
+    background: linear-gradient(90deg, #00a32a, #007017);
+}
+
+.gaal-progress-stats {
+    font-size: 14px;
+    color: #646970;
+    margin-bottom: 10px;
+}
+
+.gaal-progress-failed {
+    color: #d63638;
+}
+
+.gaal-current-item {
+    margin: 15px 0;
+    padding: 12px 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+    font-size: 13px;
+    border-left: 3px solid #2271b1;
+}
+
+.gaal-progress-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Language Grid */
+.gaal-language-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.gaal-language-card {
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 15px;
+    text-align: center;
+}
+
+.gaal-lang-code {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2271b1;
+}
+
+.gaal-lang-name {
+    font-size: 13px;
+    color: #1d2327;
+    margin: 5px 0;
+}
+
+.gaal-lang-count {
+    font-size: 12px;
+    color: #646970;
+}
+
+/* Filters */
+.gaal-filters {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.gaal-filters select {
+    min-width: 150px;
+}
+
+/* Bulk Actions */
+.gaal-bulk-actions {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.gaal-select-all-label {
+    font-weight: 500;
+}
+
+.gaal-selected-count {
+    color: #646970;
+    font-size: 13px;
+}
+
+/* Gaps Table */
+#gaps-table {
+    margin-top: 15px;
+}
+
+#gaps-table .column-title {
+    width: 30%;
+}
+
+#gaps-table .column-type {
+    width: 12%;
+}
+
+#gaps-table .column-missing {
+    width: 20%;
+}
+
+#gaps-table .column-existing {
+    width: 15%;
+}
+
+#gaps-table .column-chunks {
+    width: 8%;
+    text-align: center;
+}
+
+#gaps-table .column-actions {
+    width: 10%;
+    text-align: center;
+}
+
+.missing-languages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.lang-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #f0f0f1;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.lang-badge.missing {
+    background: #fcf0f1;
+    color: #8a2424;
+    border: 1px solid #f0c6c7;
+}
+
+.lang-badge.exists {
+    background: #edfaef;
+    color: #1e4620;
+    border: 1px solid #b8e6be;
+}
+
+/* Queue Table */
+#queue-table .column-title {
+    width: 35%;
+}
+
+#queue-table .column-language {
+    width: 15%;
+}
+
+#queue-table .column-status {
+    width: 20%;
+}
+
+#queue-table .column-progress {
+    width: 15%;
+}
+
+#queue-table .column-actions {
+    width: 15%;
+}
+
+.gaal-status-processing {
+    background-color: #fff8e5 !important;
+}
+
+.gaal-status-completed {
+    background-color: #edfaef !important;
+}
+
+.gaal-status-failed {
+    background-color: #fcf0f1 !important;
+}
+
+/* Queue Header */
+.gaal-queue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.gaal-queue-header h2 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.gaal-queue-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.gaal-stat {
+    font-size: 13px;
+    color: #646970;
+}
+
+.gaal-stat strong {
+    color: #1d2327;
+    font-size: 16px;
+}
+
+.gaal-stat-failed strong {
+    color: #d63638;
+}
+
+/* History Table */
+.gaal-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.gaal-history-header h2 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+/* Loading & Empty States */
+.gaal-loading-row,
+.gaal-empty-row {
+    text-align: center;
+    color: #646970;
+}
+
+.gaal-loading-row .spinner {
+    float: none;
+    margin: 0 10px 0 0;
+}
+
+.gaal-no-gaps {
+    text-align: center;
+    padding: 40px;
+    color: #00a32a;
+}
+
+.gaal-no-gaps .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    display: block;
+    margin: 0 auto 15px;
+}
+
+.gaal-no-gaps p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Button Icons */
+.button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+    margin-right: 3px;
+}
+
+.button-small .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* Translations Table */
+#translations-table .column-title {
+    width: 20%;
+}
+
+#translations-table .column-source {
+    width: 18%;
+}
+
+#translations-table .column-language {
+    width: 10%;
+}
+
+#translations-table .column-type {
+    width: 10%;
+}
+
+#translations-table .column-status {
+    width: 10%;
+}
+
+#translations-table .column-score {
+    width: 10%;
+    text-align: center;
+}
+
+#translations-table .column-actions {
+    width: 17%;
+    text-align: center;
+}
+
+.gaal-no-translations {
+    text-align: center;
+    padding: 40px;
+    color: #646970;
+}
+
+.gaal-no-translations .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    display: block;
+    margin: 0 auto 15px;
+}
+
+/* LLM Score Badge */
+.llm-score {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.llm-score.score-high {
+    background: #edfaef;
+    color: #1e4620;
+}
+
+.llm-score.score-medium {
+    background: #fff8e5;
+    color: #6e4e00;
+}
+
+.llm-score.score-low {
+    background: #fcf0f1;
+    color: #8a2424;
+}
+
+.llm-score.score-none {
+    background: #f0f0f1;
+    color: #646970;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-badge.status-publish {
+    background: #edfaef;
+    color: #1e4620;
+}
+
+.status-badge.status-draft {
+    background: #f0f0f1;
+    color: #646970;
+}
+
+.status-badge.status-pending {
+    background: #fff8e5;
+    color: #6e4e00;
+}
+
+/* Modal Styles */
+.gaal-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gaal-modal-content {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+}
+
+.gaal-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.gaal-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.gaal-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #646970;
+    padding: 0;
+    line-height: 1;
+}
+
+.gaal-modal-close:hover {
+    color: #d63638;
+}
+
+.gaal-modal-body {
+    padding: 20px;
+}
+
+.gaal-review-info {
+    background: #f6f7f7;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.gaal-review-info p {
+    margin: 5px 0;
+}
+
+.gaal-review-progress {
+    text-align: center;
+    padding: 30px;
+}
+
+.gaal-review-progress .spinner {
+    float: none;
+    margin: 0 10px 0 0;
+}
+
+.gaal-review-score {
+    text-align: center;
+    padding: 20px;
+    background: #f6f7f7;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.gaal-review-score .score-label {
+    display: block;
+    font-size: 14px;
+    color: #646970;
+    margin-bottom: 5px;
+}
+
+.gaal-review-score .score-value {
+    font-size: 48px;
+    font-weight: 700;
+    color: #2271b1;
+}
+
+.gaal-review-score .score-max {
+    font-size: 24px;
+    color: #646970;
+}
+
+.gaal-review-feedback {
+    margin-bottom: 20px;
+}
+
+.gaal-review-feedback h4 {
+    margin: 0 0 10px 0;
+}
+
+.gaal-review-feedback #review-feedback {
+    background: #f6f7f7;
+    padding: 15px;
+    border-radius: 4px;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.gaal-review-feedback #review-feedback p {
+    margin: 0 0 12px 0;
+}
+
+.gaal-review-feedback #review-feedback p:last-child {
+    margin-bottom: 0;
+}
+
+.gaal-review-feedback .review-section {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.gaal-review-feedback .review-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.gaal-review-feedback .review-section h5 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.gaal-review-feedback .review-section ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.gaal-review-feedback .review-section li {
+    margin-bottom: 6px;
+    color: #50575e;
+}
+
+.gaal-review-feedback .review-section li:last-child {
+    margin-bottom: 0;
+}
+
+/* Score value colors */
+.gaal-review-score .score-value.score-high {
+    color: #00a32a;
+}
+
+.gaal-review-score .score-value.score-medium {
+    color: #dba617;
+}
+
+.gaal-review-score .score-value.score-low {
+    color: #d63638;
+}
+
+.gaal-review-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 15px;
+    border-top: 1px solid #dcdcde;
+}
+
+/* Action Button Groups */
+.gaal-action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+/* ============================================
+   STRINGS TAB STYLES
+   ============================================ */
+
+/* Small cards for strings summary */
+.gaal-card-small {
+    min-width: 150px;
+    padding: 15px 20px;
+}
+
+.gaal-card-small .gaal-card-number {
+    font-size: 28px;
+}
+
+.gaal-text-success {
+    color: #00a32a !important;
+}
+
+.gaal-text-warning {
+    color: #dba617 !important;
+}
+
+/* Strings Table */
+#strings-table {
+    margin-top: 15px;
+}
+
+#strings-table .column-group {
+    width: 10%;
+    vertical-align: top;
+}
+
+#strings-table .column-original {
+    width: 38%;
+    vertical-align: top;
+}
+
+#strings-table .column-translation {
+    width: 38%;
+    vertical-align: top;
+}
+
+#strings-table .column-actions {
+    width: 8%;
+    text-align: center;
+    vertical-align: top;
+}
+
+#strings-table .string-text {
+    display: block;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#strings-table .string-text.multiline {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#strings-table .translation-missing {
+    color: #d63638;
+    font-style: italic;
+}
+
+#strings-table .translation-exists {
+    color: #1e4620;
+}
+
+.group-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #e7e8ea;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #50575e;
+}
+
+/* String Edit Modal */
+.gaal-string-edit-form {
+    margin-bottom: 20px;
+}
+
+.gaal-form-group {
+    margin-bottom: 15px;
+}
+
+.gaal-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.gaal-original-text {
+    background: #f6f7f7;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #dcdcde;
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#edit-string-translation {
+    width: 100%;
+    min-height: 100px;
+}
+
+.gaal-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 15px;
+    border-top: 1px solid #dcdcde;
+}
+
+.gaal-no-strings {
+    text-align: center;
+    padding: 40px;
+    color: #646970;
+}
+
+.gaal-no-strings .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    display: block;
+    margin: 0 auto 15px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .gaal-summary-cards {
+        flex-direction: column;
+    }
+    
+    .gaal-card {
+        min-width: 100%;
+    }
+    
+    .gaal-quick-actions {
+        flex-direction: column;
+    }
+    
+    .gaal-quick-actions .button-hero {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .gaal-filters,
+    .gaal-bulk-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .gaal-language-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .gaal-modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+}

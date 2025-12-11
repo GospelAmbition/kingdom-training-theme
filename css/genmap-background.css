@@ -1,0 +1,518 @@
+/* GenMap Background Styles - Optimized for performance */
+.genmap-background {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+    contain: layout style paint;
+    transform: translateZ(0); /* Force GPU acceleration */
+    background: transparent;
+}
+
+.genmap-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+    animation: ambientPulse 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes ambientPulse {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.genmap-background .text-prompt {
+    font-size: 18px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    text-align: left;
+    padding: 20px 30px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    min-height: 60px;
+    position: relative;
+    transition: opacity 0.3s;
+    will-change: opacity;
+}
+
+.genmap-background .text-prompt::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #3b82f6);
+    border-radius: 12px;
+    z-index: -1;
+    opacity: 0;
+    animation: borderGlow 3s ease-in-out infinite;
+    filter: blur(10px);
+}
+
+@keyframes borderGlow {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.genmap-background .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+    transform: translateZ(0); /* GPU acceleration */
+}
+
+.genmap-background .particle.data {
+    background: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.genmap-background .particle.process {
+    background: #8b5cf6;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.8), 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+.genmap-background .particle.create {
+    background: #06b6d4;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+}
+
+.genmap-background .video-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px;
+    height: 90px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid rgba(139, 92, 246, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    opacity: 0;
+    will-change: transform, opacity;
+    transform: translateZ(0); /* GPU acceleration */
+}
+
+.genmap-background .video-frame::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 16px;
+    border-color: transparent transparent transparent rgba(139, 92, 246, 0.7);
+}
+
+.genmap-background .youtube-layer {
+    opacity: 0;
+    animation: fadeInYoutube 2s ease-out 3s forwards;
+    will-change: opacity, transform;
+    transform: translateZ(0); /* GPU acceleration */
+}
+
+@keyframes fadeInYoutube {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+.genmap-background .youtube-player {
+    background: #282828;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    transition: background 0.5s ease;
+    position: relative;
+}
+
+/* Platform-specific player styling */
+.genmap-background[data-platform="desktop"] .youtube-player {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 0;
+    box-shadow: 
+        0 8px 30px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(60, 60, 60, 0.5);
+    position: relative;
+}
+
+.genmap-background[data-platform="desktop"] .youtube-player::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 12px;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.genmap-background[data-platform="tablet"] .youtube-player {
+    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%) !important;
+    border-radius: 24px !important;
+    padding: 12px !important;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.9), 
+        inset 0 0 0 5px rgba(255, 255, 255, 0.25),
+        inset 0 0 0 10px rgba(0, 0, 0, 0.6),
+        0 0 0 3px rgba(60, 60, 60, 0.8);
+    border: 3px solid rgba(100, 100, 100, 0.3);
+    transform: scale(0.95) translateZ(0);
+    transition: transform 0.5s ease;
+}
+
+.genmap-background[data-platform="mobile"] {
+    top: 50% !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: 5% !important;
+    width: 90% !important;
+    max-width: 360px !important;
+    transform: translateY(-50%) translateZ(0) !important;
+}
+
+/* Position text layer to the left of mobile graphic */
+.genmap-background[data-platform="mobile"] .genmap-text-layer {
+    top: 50% !important;
+    left: 5% !important;
+    right: auto !important;
+    width: 45% !important;
+    max-width: 500px !important;
+    min-width: 280px !important;
+    transform: translateY(-50%) !important;
+    z-index: 15 !important;
+}
+
+@media (max-width: 768px) {
+    .genmap-background[data-platform="mobile"] .genmap-text-layer {
+        width: 40% !important;
+        max-width: 400px !important;
+        min-width: 250px !important;
+        left: 2.5% !important;
+    }
+}
+
+.genmap-background[data-platform="mobile"] .youtube-player {
+    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%) !important;
+    border-radius: 40px !important;
+    padding: 16px 8px !important;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.4), 
+        inset 0 0 0 6px rgba(255, 255, 255, 0.3),
+        inset 0 0 0 12px rgba(0, 0, 0, 0.7),
+        0 0 0 4px rgba(80, 80, 80, 0.9) !important;
+    border: 4px solid rgba(150, 150, 150, 0.4) !important;
+    transform: scale(0.85) translateZ(0) !important;
+    max-width: 360px !important;
+    margin: 0 auto;
+    transition: transform 0.5s ease;
+}
+
+.genmap-background .player-screen {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: #000;
+    overflow: hidden;
+}
+
+.genmap-background[data-platform="mobile"] .player-screen {
+    padding-top: 177.78%; /* 9:16 aspect ratio for portrait phone */
+}
+
+.genmap-background .player-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%);
+    opacity: 0.8;
+    transition: opacity 0.5s ease;
+}
+
+.genmap-background .play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    animation: playButtonPulse 2s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.genmap-background[data-platform="desktop"] .youtube-play {
+    opacity: 0.9;
+}
+
+@keyframes playButtonPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+.genmap-background[data-platform="desktop"] .player-screen::before {
+    background: linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%);
+}
+
+.genmap-background[data-platform="tablet"] .player-screen {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.genmap-background[data-platform="tablet"] .player-screen::before {
+    background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+    border-radius: 16px;
+}
+
+.genmap-background[data-platform="mobile"] .player-screen {
+    border-radius: 24px;
+    overflow: hidden;
+    margin-top: 0;
+}
+
+.genmap-background[data-platform="mobile"] .player-screen::before {
+    background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+    border-radius: 24px;
+}
+
+.genmap-background .player-controls {
+    background: #181818;
+    padding: 8px 12px;
+    transition: background 0.5s ease;
+}
+
+.genmap-background[data-platform="desktop"] .player-controls {
+    background: #181818;
+}
+
+.genmap-background[data-platform="tablet"] .player-controls {
+    background: #0a0a0a;
+    border-radius: 0 0 16px 16px;
+}
+
+.genmap-background[data-platform="mobile"] .player-controls {
+    background: #0a0a0a;
+    border-radius: 0 0 24px 24px;
+    margin-top: -1px;
+}
+
+.genmap-background .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.genmap-background .progress-fill {
+    height: 100%;
+    background: #ff0000;
+    width: 0%;
+    border-radius: 2px;
+    animation: progressFill 8s linear infinite;
+    transition: background 0.5s ease;
+    will-change: width;
+}
+
+.genmap-background[data-platform="desktop"] .progress-fill {
+    background: #ff0000;
+}
+
+.genmap-background[data-platform="tablet"] .progress-fill {
+    background: #007aff;
+}
+
+.genmap-background[data-platform="mobile"] .progress-fill {
+    background: #007aff;
+}
+
+@keyframes progressFill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.genmap-background .control-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    font-size: 12px;
+}
+
+.genmap-background .control-icon {
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.genmap-background .time-display {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+}
+
+.genmap-background .right-controls {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* Text layer positioning */
+.genmap-text-layer {
+    position: absolute;
+    top: calc(8% + min(90vw, 640px) * 0.5625 + 60px + 2em); /* 8% (youtube layer top) + height (56.25% of responsive width) + controls height + 2em spacing */
+    left: auto;
+    right: 5%;
+    width: 80%;
+    max-width: 700px;
+    z-index: 10;
+}
+
+/* Particles container */
+.genmap-particles-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Video generation layer */
+.genmap-video-generation {
+    position: absolute;
+    top: 48%;
+    left: auto;
+    right: 5%;
+    transform: translateY(-50%);
+    width: 600px;
+    height: 340px;
+    z-index: 7;
+}
+
+.genmap-frame-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* YouTube layer */
+.genmap-youtube-layer {
+    position: absolute;
+    top: 8%;
+    left: auto;
+    right: 5%;
+    width: 90%;
+    max-width: 640px;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .genmap-background .text-prompt {
+        font-size: 14px;
+        padding: 15px 20px;
+    }
+    
+    .genmap-background .video-frame {
+        width: 120px;
+        height: 68px;
+    }
+    
+    .genmap-text-layer {
+        width: 95%;
+        right: 2.5%;
+        top: calc(8% + min(90vw, 640px) * 0.5625 + 60px + 2em);
+    }
+    
+    .genmap-video-generation {
+        width: 400px;
+        height: 225px;
+    }
+}
+
+@media (max-width: 480px) {
+    .genmap-background .text-prompt {
+        font-size: 12px;
+        padding: 12px 16px;
+        min-height: 50px;
+    }
+    
+    .genmap-background .video-frame {
+        width: 90px;
+        height: 51px;
+    }
+    
+    .genmap-background .control-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .genmap-text-layer {
+        top: calc(50% + (min(90vw, 360px) * 1.7778 / 2) + 60px + 2em); /* 50% (mobile youtube layer center) + half height (for translateY -50%) + controls + 2em */
+        width: 95%;
+        right: 2.5%;
+    }
+    
+    /* Override for mobile platform - position text to the left */
+    .genmap-background[data-platform="mobile"] .genmap-text-layer {
+        top: 50% !important;
+        left: 2.5% !important;
+        right: auto !important;
+        width: calc(100vw - min(90vw, 360px) - 10%) !important;
+        max-width: 400px !important;
+        min-width: 250px !important;
+        transform: translateY(-50%) !important;
+    }
+    
+    .genmap-video-generation {
+        width: 300px;
+        height: 170px;
+    }
+}
