@@ -3987,6 +3987,14 @@ function gaal_get_all_translatable_strings() {
         'pagination_previous' => array('string' => '← Previous', 'context' => 'Frontend UI', 'multiline' => false),
         'pagination_next' => array('string' => 'Next →', 'context' => 'Frontend UI', 'multiline' => false),
         'pagination_page_of' => array('string' => 'Page {current} of {total}', 'context' => 'Frontend UI', 'multiline' => false),
+        
+        // Hero Animation Prompts (GenMap Background)
+        'hero_prompt_1' => array('string' => 'Create a discipleship training video that sparks movements in unreached communities...', 'context' => 'Hero Animation', 'multiline' => false),
+        'hero_prompt_2' => array('string' => 'Generate an engaging video teaching biblical principles for multiplying disciples...', 'context' => 'Hero Animation', 'multiline' => false),
+        'hero_prompt_3' => array('string' => 'Produce a testimony video showing how media catalyzes church planting movements...', 'context' => 'Hero Animation', 'multiline' => false),
+        'hero_prompt_4' => array('string' => 'Make an interactive video equipping believers to share the Gospel through digital tools...', 'context' => 'Hero Animation', 'multiline' => false),
+        'hero_prompt_5' => array('string' => 'Create a training series on facilitating discovery Bible studies in oral cultures...', 'context' => 'Hero Animation', 'multiline' => false),
+        'hero_prompt_6' => array('string' => 'Generate content showing how one faithful disciple can multiply into thousands...', 'context' => 'Hero Animation', 'multiline' => false),
     );
 }
 
