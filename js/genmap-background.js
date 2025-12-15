@@ -1,6 +1,6 @@
 // GenMap Background Animation
-// Text prompts that will cycle
-const prompts = [
+// Text prompts that will cycle - use localized prompts if available, otherwise fallback to defaults
+const defaultPrompts = [
     "Create a discipleship training video that sparks movements in unreached communities...",
     "Generate an engaging video teaching biblical principles for multiplying disciples...",
     "Produce a testimony video showing how media catalyzes church planting movements...",
@@ -8,6 +8,11 @@ const prompts = [
     "Create a training series on facilitating discovery Bible studies in oral cultures...",
     "Generate content showing how one faithful disciple can multiply into thousands..."
 ];
+
+// Use localized prompts from PHP if available (ktGenMapPrompts), otherwise use defaults
+const prompts = (typeof ktGenMapPrompts !== 'undefined' && Array.isArray(ktGenMapPrompts) && ktGenMapPrompts.length > 0)
+    ? ktGenMapPrompts
+    : defaultPrompts;
 
 let currentPromptIndex = 0;
 let currentText = '';

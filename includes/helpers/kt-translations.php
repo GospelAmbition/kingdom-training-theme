@@ -405,5 +405,13 @@ function kt_get_default_translations() {
         'about_step_2_description' => 'Trained responders dialogue with seekers online, identifying persons of peace ready for face-to-face engagement. This filters out disinterested individuals and focuses on genuine seekers.',
         'about_step_3_title' => 'Face-to-Face Discipleship',
         'about_step_3_description' => 'Multipliers meet seekers in person, guiding them through discovery, obedience, and sharing in reproducing communities. This is where true disciple making happens.',
+        
+        // Hero Animation Prompts (GenMap Background)
+        'hero_prompt_1' => 'Create a discipleship training video that sparks movements in unreached communities...',
+        'hero_prompt_2' => 'Generate an engaging video teaching biblical principles for multiplying disciples...',
+        'hero_prompt_3' => 'Produce a testimony video showing how media catalyzes church planting movements...',
+        'hero_prompt_4' => 'Make an interactive video equipping believers to share the Gospel through digital tools...',
+        'hero_prompt_5' => 'Create a training series on facilitating discovery Bible studies in oral cultures...',
+        'hero_prompt_6' => 'Generate content showing how one faithful disciple can multiply into thousands...',
     );
 }

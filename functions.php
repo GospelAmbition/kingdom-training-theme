@@ -3166,6 +3166,18 @@ function kt_enqueue_assets() {
         'searchStartTyping' => kt_t('search_start_typing'),
         'currentLanguage'  => kt_get_current_language(), // Add current language for search filtering
     ));
+    
+    // Localize genmap background animation with translated prompts (only on front page)
+    if (is_front_page()) {
+        wp_localize_script('kt-genmap-background', 'ktGenMapPrompts', array(
+            kt_t('hero_prompt_1'),
+            kt_t('hero_prompt_2'),
+            kt_t('hero_prompt_3'),
+            kt_t('hero_prompt_4'),
+            kt_t('hero_prompt_5'),
+            kt_t('hero_prompt_6'),
+        ));
+    }
 }
 add_action('wp_enqueue_scripts', 'kt_enqueue_assets');
 
