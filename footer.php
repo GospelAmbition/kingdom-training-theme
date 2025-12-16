@@ -94,6 +94,11 @@ kt_render_structured_data( array(
                         </a>
                     </li>
                     <li>
+                        <a href="<?php echo esc_url( kt_get_language_url( '/contact' ) ); ?>" class="text-sm hover:text-white transition-colors">
+                            <?php kt_e( 'nav_contact' ); ?>
+                        </a>
+                    </li>
+                    <li>
                         <a href="<?php echo esc_url( kt_get_language_url( '/newsletter' ) ); ?>" class="text-sm hover:text-white transition-colors">
                             <?php kt_e( 'nav_newsletter' ); ?>
                         </a>
@@ -131,11 +136,18 @@ kt_render_structured_data( array(
                     <?php kt_e( 'nav_about' ); ?>
                 </a>
                 <span class="hidden md:inline text-secondary-600">|</span>
-                <a 
-                    href="<?php echo esc_url( kt_get_language_url( '/privacy' ) ); ?>" 
+                <a
+                    href="<?php echo esc_url( kt_get_language_url( '/privacy' ) ); ?>"
                     class="text-sm text-secondary-200 hover:text-white transition-colors"
                 >
                     <?php kt_e( 'footer_privacy_policy' ); ?>
+                </a>
+                <span class="hidden md:inline text-secondary-600">|</span>
+                <a
+                    href="<?php echo esc_url( kt_get_language_url( '/contact' ) ); ?>"
+                    class="text-sm text-secondary-200 hover:text-white transition-colors"
+                >
+                    <?php kt_e( 'nav_contact' ); ?>
                 </a>
             </div>
             <p class="text-sm text-secondary-200 text-center">
