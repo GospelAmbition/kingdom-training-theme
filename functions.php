@@ -3667,7 +3667,7 @@ function gaal_get_all_translatable_strings() {
         'nav_login' => array('string' => 'Login', 'context' => 'Frontend UI', 'multiline' => false),
         'nav_menu' => array('string' => 'Menu', 'context' => 'Frontend UI', 'multiline' => false),
         'nav_about' => array('string' => 'About', 'context' => 'Frontend UI', 'multiline' => false),
-        'nav_enroll_mvp' => array('string' => 'Enroll in The MVP Course', 'context' => 'Frontend UI', 'multiline' => false),
+        'nav_enroll_mvp' => array('string' => 'Start The MVP Course', 'context' => 'Frontend UI', 'multiline' => false),
         'nav_start_mvp' => array('string' => 'Start the MVP Course', 'context' => 'Frontend UI', 'multiline' => false),
         'nav_subscribe_newsletter' => array('string' => 'Subscribe to Newsletter', 'context' => 'Frontend UI', 'multiline' => false),
 

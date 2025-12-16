@@ -142,7 +142,7 @@ function kt_get_default_translations() {
         'nav_menu'             => 'Menu',
         'nav_about'            => 'About',
         'nav_contact'          => 'Contact',
-        'nav_enroll_mvp'       => 'Enroll in The MVP Course',
+        'nav_enroll_mvp'       => 'Start The MVP Course',
         'nav_start_mvp'        => 'Start the MVP Course',
         
         // UI Elements
