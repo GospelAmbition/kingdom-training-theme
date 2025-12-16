@@ -40,19 +40,16 @@
         
         // Spark particle system
         class Spark {
-            constructor() {
+            constructor(containerWidth, containerHeight) {
                 this.element = document.createElement('div');
                 this.element.className = 'spark';
-                
+
                 // Random color
                 const colors = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5'];
                 this.colorClass = colors[Math.floor(Math.random() * colors.length)];
                 this.element.classList.add(this.colorClass);
-                
+
                 // Random starting position near books (bottom of container)
-                const container = sparksContainer.parentElement;
-                const containerHeight = container.offsetHeight || window.innerHeight;
-                const containerWidth = container.offsetWidth || window.innerWidth;
                 const bookAreaStart = containerWidth * 0.2;
                 const bookAreaEnd = containerWidth * 0.8;
                 this.x = bookAreaStart + Math.random() * (bookAreaEnd - bookAreaStart);
@@ -88,7 +85,7 @@
                 this.element.style.top = `${this.y}px`;
             }
             
-            update(deltaTime) {
+            update(deltaTime, containerWidth, containerHeight) {
                 // Handle initial delay
                 if (!this.delayed) {
                     this.delay -= deltaTime;
@@ -98,27 +95,25 @@
                     }
                     this.delayed = true;
                 }
-                
+
                 this.age += deltaTime;
-                
+
                 // Update position
                 this.x += this.vx;
                 this.y += this.vy;
-                
+
                 // Add some turbulence/wind effect
                 this.vx += (Math.random() - 0.5) * 0.1;
                 this.vy += (Math.random() - 0.5) * 0.05;
-                
+
                 // Damping to prevent excessive speed
                 this.vx *= 0.99;
                 this.vy *= 0.995;
-                
+
                 // Calculate opacity based on age and position
-                const container = sparksContainer.parentElement;
-                const containerHeight = container.offsetHeight || window.innerHeight;
                 const progress = this.age / this.lifetime;
                 const heightProgress = (containerHeight - this.y) / containerHeight;
-                
+
                 // Fade in at start, fade out at end
                 if (progress < 0.1) {
                     this.opacity = progress / 0.1;
@@ -127,24 +122,23 @@
                 } else {
                     this.opacity = 0.6 + Math.sin(progress * Math.PI * 4) * 0.2; // Subtle pulsing
                 }
-                
+
                 // Increase blur as it rises (fading out of focus)
                 this.blur = heightProgress * 3;
-                
+
                 // Apply opacity and blur with breathing effect
                 const breathe = 0.7 + Math.sin(this.age / 500) * 0.3;
                 this.element.style.opacity = (this.opacity * breathe * 0.6).toString();
                 this.element.style.filter = `blur(${this.blur}px)`;
-                
+
                 this.updatePosition();
-                
+
                 // Remove if expired or off screen
-                const containerWidth = container.offsetWidth || window.innerWidth;
                 if (this.age >= this.lifetime || this.y < -50 || this.x < -50 || this.x > containerWidth + 50) {
                     this.element.remove();
                     return false;
                 }
-                
+
                 return true;
             }
         }
@@ -155,34 +149,39 @@
         let lastSpawnTime = 0;
         const spawnInterval = 20; // Spawn new spark every 20ms
         
-        function spawnSpark() {
+        function spawnSpark(containerWidth, containerHeight) {
             if (sparks.length < maxSparks) {
-                const spark = new Spark();
+                const spark = new Spark(containerWidth, containerHeight);
                 sparks.push(spark);
             }
         }
         
         // Animation loop
         let lastTime = performance.now();
-        
+        const container = sparksContainer.parentElement;
+
         function animate(currentTime) {
             const deltaTime = currentTime - lastTime;
             lastTime = currentTime;
-            
+
+            // Read container dimensions once per frame (not per spark)
+            const containerWidth = container.offsetWidth || window.innerWidth;
+            const containerHeight = container.offsetHeight || window.innerHeight;
+
             // Spawn new sparks periodically
             if (currentTime - lastSpawnTime >= spawnInterval) {
-                spawnSpark();
+                spawnSpark(containerWidth, containerHeight);
                 lastSpawnTime = currentTime;
             }
-            
+
             // Update all sparks
             for (let i = sparks.length - 1; i >= 0; i--) {
                 const spark = sparks[i];
-                if (!spark.update(deltaTime)) {
+                if (!spark.update(deltaTime, containerWidth, containerHeight)) {
                     sparks.splice(i, 1);
                 }
             }
-            
+
             requestAnimationFrame(animate);
         }
         
