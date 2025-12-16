@@ -85,7 +85,7 @@ $is_front_page = is_front_page();
     <nav class="container-custom <?php echo $is_front_page ? 'py-4' : 'py-6'; ?>">
         <div class="flex items-center justify-between">
             <!-- Logo -->
-            <a href="<?php echo esc_url( kt_get_language_url( '/' ) ); ?>" class="flex items-center space-x-3 z-50">
+            <a href="<?php echo esc_url( kt_get_language_url( '/' ) ); ?>" class="flex items-center space-x-3 z-50 shrink-0">
                 <img
                     src="<?php echo esc_url( $logo_url ); ?>"
                     alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
@@ -94,7 +94,7 @@ $is_front_page = is_front_page();
                     fetchpriority="high"
                     width="200"
                     height="40"
-                    class="h-10 w-auto"
+                    class="h-10 w-auto min-w-[120px]"
                     style="aspect-ratio: 200 / 40"
                 >
             </a>
