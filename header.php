@@ -141,7 +141,7 @@ $is_front_page = is_front_page();
                 <?php else : ?>
                     <a href="<?php echo esc_url( kt_get_language_url( '/login' ) ); ?>" class="text-gray-700 hover:text-primary-500 transition-colors" aria-label="<?php echo esc_attr( kt_t( 'nav_login' ) ); ?>">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16l4-4m0 0l-4-4m4 4H3m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                         </svg>
                     </a>
                 <?php endif; ?>
@@ -247,7 +247,7 @@ $is_front_page = is_front_page();
                 <?php else : ?>
                     <a href="<?php echo esc_url( kt_get_language_url( '/login' ) ); ?>" class="w-full flex items-center justify-center gap-2 py-2 px-4 text-gray-700 hover:text-primary-500 hover:bg-gray-50 font-medium transition-colors rounded-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16l4-4m0 0l-4-4m4 4H3m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                         </svg>
                         <span><?php kt_e( 'nav_login' ); ?></span>
                     </a>
