@@ -77,7 +77,7 @@ function kt_get_mobile_nav_class( $path ) {
     return kt_is_nav_active( $path ) ? "{$base} {$active}" : $base;
 }
 
-$logo_url = get_template_directory_uri() . '/dist/kt-logo-header.webp';
+$logo_url = 'https://ai.kingdom.training/wp-content/uploads/2025/12/kt-logo-header.webp';
 $is_front_page = is_front_page();
 ?>
 
