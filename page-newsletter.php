@@ -21,8 +21,8 @@ kt_render_seo_meta( array(
 
 <!-- Page Header -->
 <?php get_template_part( 'template-parts/page-header', null, array(
-    'title'       => 'Newsletter',
-    'description' => 'Stay connected with the latest training resources, articles, and updates on Media to Disciple Making Movements.',
+    'title'       => kt_t( 'nav_newsletter' ),
+    'description' => kt_t( 'newsletter_page_header_description' ),
     'bg_class'    => 'bg-gradient-to-r from-primary-700 to-primary-500',
 ) ); ?>
 
@@ -38,9 +38,9 @@ kt_render_seo_meta( array(
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Subscribe to Our Newsletter</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3"><?php kt_e( 'newsletter_title' ); ?></h2>
                     <p class="text-gray-600 leading-relaxed">
-                        Get the latest training resources, articles, and insights delivered directly to your inbox. Join our community of disciple makers committed to using media strategically for Kingdom impact.
+                        <?php kt_e( 'newsletter_form_description' ); ?>
                     </p>
                 </div>
 
@@ -51,25 +51,25 @@ kt_render_seo_meta( array(
 
                 <!-- What to Expect Section -->
                 <div class="mt-10 pt-8 border-t border-gray-200">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-6">What to Expect</h3>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6"><?php kt_e( 'newsletter_what_to_expect' ); ?></h3>
                     <ul class="space-y-4">
                         <li class="flex items-start">
                             <svg class="w-6 h-6 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            <span class="text-gray-700">Latest articles and insights on Media to Disciple Making Movements</span>
+                            <span class="text-gray-700"><?php kt_e( 'newsletter_expect_item_1' ); ?></span>
                         </li>
                         <li class="flex items-start">
                             <svg class="w-6 h-6 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            <span class="text-gray-700">Practical tools and strategies for disciple makers</span>
+                            <span class="text-gray-700"><?php kt_e( 'newsletter_expect_item_2' ); ?></span>
                         </li>
                         <li class="flex items-start">
                             <svg class="w-6 h-6 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            <span class="text-gray-700">Stories from the field and testimonies of impact</span>
+                            <span class="text-gray-700"><?php kt_e( 'newsletter_expect_item_3' ); ?></span>
                         </li>
                     </ul>
                 </div>
@@ -77,9 +77,9 @@ kt_render_seo_meta( array(
                 <!-- Privacy Statement -->
                 <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
                     <p>
-                        We respect your privacy. Unsubscribe at any time. 
+                        <?php kt_e( 'newsletter_privacy_statement' ); ?> 
                         <a href="<?php echo esc_url( get_permalink( get_page_by_path( 'privacy' ) ) ); ?>" class="text-primary-600 hover:text-primary-700 underline">
-                            Learn more about our privacy policy
+                            <?php kt_e( 'newsletter_privacy_link_text' ); ?>
                         </a>
                     </p>
                 </div>
