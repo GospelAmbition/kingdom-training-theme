@@ -78,7 +78,7 @@ kt_render_seo_meta( array(
                 <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
                     <p>
                         <?php kt_e( 'newsletter_privacy_statement' ); ?> 
-                        <a href="<?php echo esc_url( get_permalink( get_page_by_path( 'privacy' ) ) ); ?>" class="text-primary-600 hover:text-primary-700 underline">
+                        <a href="<?php echo esc_url( kt_get_language_url( '/privacy' ) ); ?>" class="text-primary-600 hover:text-primary-700 underline">
                             <?php kt_e( 'newsletter_privacy_link_text' ); ?>
                         </a>
                     </p>
