@@ -259,46 +259,6 @@ add_action('admin_init', function() {
     }
 });
 
-/**
- * Modify page permalinks to include /page/ prefix
- * This matches the React router structure for SimplePage component
- * Excludes special pages that have their own routes (privacy, etc.)
- */
-function gaal_modify_page_permalink($link, $post_id) {
-    $post = get_post($post_id);
-    
-    // Only modify if this is a page
-    if (!$post || $post->post_type !== 'page') {
-        return $link;
-    }
-    
-    // Exclude pages that have dedicated React routes
-    $excluded_slugs = array('privacy');
-    if (in_array($post->post_name, $excluded_slugs)) {
-        return $link;
-    }
-    
-    // Get the site URL
-    $site_url = home_url();
-    
-    // Check if this is a Polylang translated page (has language prefix)
-    $lang_slug = '';
-    if (function_exists('pll_get_post_language')) {
-        $post_lang = pll_get_post_language($post_id, 'slug');
-        $default_lang = pll_default_language('slug');
-        
-        // Only add language prefix if it's not the default language
-        if ($post_lang && $post_lang !== $default_lang) {
-            $lang_slug = $post_lang . '/';
-        }
-    }
-    
-    // Build new permalink with /page/ prefix
-    $new_link = trailingslashit($site_url) . $lang_slug . 'page/' . $post->post_name . '/';
-    
-    return $new_link;
-}
-add_filter('page_link', 'gaal_modify_page_permalink', 10, 2);
 
 // Register Custom Post Types
 // Register Custom Post Types and Taxonomies
