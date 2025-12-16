@@ -558,7 +558,7 @@ if (!class_exists('GAAL_Translation_Scanner')) {
                 array('name' => 'nav_login', 'string' => 'Login'),
                 array('name' => 'nav_menu', 'string' => 'Menu'),
                 array('name' => 'nav_about', 'string' => 'About'),
-                array('name' => 'nav_enroll_mvp', 'string' => 'Enroll in The MVP Course'),
+                array('name' => 'nav_enroll_mvp', 'string' => 'Start The MVP Course'),
                 array('name' => 'nav_start_mvp', 'string' => 'Start the MVP Course'),
                 array('name' => 'nav_subscribe_newsletter', 'string' => 'Subscribe to Newsletter'),
                 // UI elements
@@ -887,7 +887,7 @@ if (!class_exists('GAAL_Translation_Scanner')) {
             $frontend_ui_strings = array(
                 // Navigation
                 'Home', 'Articles', 'Tools', 'Strategy Course', 'Strategy Courses', 
-                'Newsletter', 'Search', 'Login', 'Menu', 'About', 'Enroll in The MVP Course',
+                'Newsletter', 'Search', 'Login', 'Menu', 'About', 'Start The MVP Course',
                 'Start the MVP Course', 'Subscribe to Newsletter',
                 // UI elements
                 'Learn more', 'View all', 'Browse all', 'Back to', 'Explore',

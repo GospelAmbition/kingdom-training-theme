@@ -92,10 +92,10 @@ $is_front_page = is_front_page();
                     loading="eager"
                     decoding="async"
                     fetchpriority="high"
-                    width="200"
-                    height="40"
+                    width="180"
+                    height="46"
                     class="h-10 w-auto min-w-[120px]"
-                    style="aspect-ratio: 200 / 40"
+                    style="aspect-ratio: 180 / 46"
                 >
             </a>
 
